@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import jwt from 'jsonwebtoken'
+import { jwtVerify } from 'jose'
 
 const PUBLIC_ROUTES = [
   '/',
@@ -12,13 +12,16 @@ const PUBLIC_ROUTES = [
   '/api/auth/me'
 ]
 
-export const middleware = (req: NextRequest) => {
+export const middleware = async (req: NextRequest) => {
   const { pathname } = req.nextUrl
 
   const isPublicRoute = PUBLIC_ROUTES.some((p: string) => pathname === p || pathname.startsWith(`${p}/`))
-  if (isPublicRoute) return NextResponse.next()
+  if (isPublicRoute) {
+    return NextResponse.next()
+  }
 
   const token = req.cookies.get('token')?.value
+  
   if (!token) {
     const loginUrl = new URL('/login', req.url)
     loginUrl.searchParams.set('next', pathname)
@@ -26,9 +29,17 @@ export const middleware = (req: NextRequest) => {
   }
 
   try {
-    jwt.verify(token, process.env.JWT_SECRET! as string)
+    const JWT_SECRET = process.env.JWT_SECRET
+    if (!JWT_SECRET) {
+      const loginUrl = new URL('/login', req.url)
+      loginUrl.searchParams.set('next', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+    
+    const secret = new TextEncoder().encode(JWT_SECRET)
+    await jwtVerify(token, secret)
     return NextResponse.next()
-  } catch {
+  } catch (error) {
     const loginUrl = new URL('/login', req.url)
     loginUrl.searchParams.set('next', pathname)
     return NextResponse.redirect(loginUrl)

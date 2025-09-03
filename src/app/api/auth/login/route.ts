@@ -13,7 +13,8 @@ export const POST = async (req: Request) => {
     const { email, password } = bodySchema.parse(await req.json())
     const user = verifyUserMock(email, password)
     if (!user) return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 })
-    const token = signAuthToken({ id: user.id, email: user.email, name: user.name, role: user.role })
+    
+    const token = await signAuthToken({ id: user.id, email: user.email, name: user.name, role: user.role })
     await setAuthCookie(token)
     return NextResponse.json({ message: 'Login successful', user }, { status: 200 })
   } catch (error) {

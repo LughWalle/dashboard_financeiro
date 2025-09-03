@@ -18,18 +18,13 @@ export default function Login() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    
     try {
-      const response = await axios.post('/api/auth/login', { email, password }).then((res) => {
-        if (res.status === 200) {
-          router.push(next)
-        }
-      }).catch((err) => {
-        setError(err.response.data.message)
-      }).finally(() => {
-        setLoading(false)
-      })
-    } catch (err) {
-      setError('An error occurred')
+      const response = await axios.post('/api/auth/login', { email, password })
+      
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'An error occurred')
+    } finally {
       setLoading(false)
     }
   }
@@ -42,7 +37,8 @@ export default function Login() {
             <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required/>
             <button type="submit" disabled={loading}>{loading ? 'Loading...' : 'Login'}</button>
         </form>
-        <p>Don't have an account? <a href="/register">Register</a></p>
+        {error && <p style={{color: 'red'}}>{error}</p>}
+        <p>Don&apos;t have an account? <a href="/register">Register</a></p>
         <p>Forgot your password? <a href="/forgot">Forgot Password</a></p>
     </>
   )

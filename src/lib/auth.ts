@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import dotenv from 'dotenv';
 
@@ -18,12 +18,21 @@ export type jwtPayloadType = {
   role: string;
 };
 
-export const signAuthToken = (payload: jwtPayloadType) => {
-    return jwt.sign(payload, JWT_SECRET)
+export const signAuthToken = async (payload: jwtPayloadType) => {
+  const secret = new TextEncoder().encode(JWT_SECRET);
+  const alg = 'HS256';
+  
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg })
+    .setIssuedAt()
+    .setExpirationTime(JWT_EXPIRES)
+    .sign(secret);
 }
 
-export const verifyAuthToken = (token: string) => {
-    return jwt.verify(token, JWT_SECRET) as jwtPayloadType
+export const verifyAuthToken = async (token: string) => {
+  const secret = new TextEncoder().encode(JWT_SECRET);
+  const { payload } = await jwtVerify(token, secret);
+  return payload as jwtPayloadType;
 }
 
 export const setAuthCookie = async(token: string) => {
@@ -50,6 +59,6 @@ export const getAuthCookie = async () => {
 export const getAuthUser = async () => {
   const token = await getAuthCookie()
   if (!token) return null
-  const decoded = verifyAuthToken(token)
+  const decoded = await verifyAuthToken(token)
   return decoded
 }
