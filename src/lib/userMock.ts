@@ -5,6 +5,7 @@ export type UserMockType = {
   email: string;
   name: string;
   password: string;
+  role: 'admin' | 'user';
 };
 
 export const userMock: UserMockType = {
@@ -12,6 +13,7 @@ export const userMock: UserMockType = {
   email: 'admin@test.com',
   name: 'Admin',
   password: bcrypt.hashSync('123456', 10),
+  role: 'admin',
 };
 
 export let userMockList: UserMockType[] = [userMock];
