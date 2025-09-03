@@ -38,3 +38,11 @@ export const updateUserMock = (user: UserMockType) => {
 export const deleteUserMock = (id: number) => {
   userMockList = userMockList.filter((user) => user.id !== id);
 };
+
+export const verifyUserMock = (email: string, password: string) => {
+  const user = getUserMockByEmail(email)
+  if (!user) return null
+  const isPasswordValid = bcrypt.compareSync(password, user.password)
+  if (!isPasswordValid) return null
+  return user
+}

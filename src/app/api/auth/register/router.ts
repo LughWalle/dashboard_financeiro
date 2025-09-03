@@ -3,9 +3,9 @@ import { z } from "zod"
 import { createUserMock, userMockList } from "@/lib/userMock"
 
 const bodySchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(1),
-  password: z.string().min(1),
+  email: z.email(),
+  name: z.string().min(3),
+  password: z.string().min(6),
   role: z.enum(['admin', 'user']).optional(),
 })
 
