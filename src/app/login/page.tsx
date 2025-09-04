@@ -1,13 +1,9 @@
 'use client'
 import React from 'react'
 import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
 import axios from 'axios'
 
 export default function Login() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const next = searchParams.get('next') || '/dashboard'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -21,7 +17,10 @@ export default function Login() {
     
     try {
       const response = await axios.post('/api/auth/login', { email, password })
-      
+
+      if (response.status === 200) {
+        window.location.href = '/dashboard'
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'An error occurred')
     } finally {

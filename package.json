@@ -4,16 +4,18 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:all": "concurrently \"npm run json-server\" \"npm run dev\"",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "json-server": "json-server --watch db.json --port 3001 --host localhost"
   },
   "dependencies": {
     "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
     "dotenv": "^17.2.2",
-    "jose": "^6.1.0",
     "jsonwebtoken": "^9.0.2",
+    "jose": "^5.2.3",
     "next": "15.5.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
@@ -25,8 +27,10 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^8.2.2",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
+    "json-server": "^1.0.0-alpha.23",
     "typescript": "^5"
   }
 }

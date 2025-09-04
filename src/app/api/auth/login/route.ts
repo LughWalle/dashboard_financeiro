@@ -11,7 +11,7 @@ const bodySchema = z.object({
 export const POST = async (req: Request) => {
   try {
     const { email, password } = bodySchema.parse(await req.json())
-    const user = verifyUserMock(email, password)
+    const user = await verifyUserMock(email, password)
     if (!user) return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 })
     
     const token = await signAuthToken({ id: user.id, email: user.email, name: user.name, role: user.role })
