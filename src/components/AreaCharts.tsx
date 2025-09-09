@@ -243,7 +243,10 @@ const AreaCharts = () => {
         borderRadius: '8px',
         border: '1px solid #ffcc02'
       }}>
-        <h3 style={{ marginBottom: '15px', color: '#ef6c00' }}>🥧 Filtros do Gráfico de Pizza</h3>
+        <h3 style={{ marginBottom: '15px', color: '#ef6c00' }}>{`Distribuição por ${
+          pieDistribution === 'type' ? 'Tipo de Transação' :
+          pieDistribution === 'industry' ? 'Indústria' : 'Estado'
+        }`}</h3>
         
         
         <div>
@@ -270,10 +273,7 @@ const AreaCharts = () => {
 
       <PieChart 
         data={pieData} 
-        title={`Distribuição por ${
-          pieDistribution === 'type' ? 'Tipo de Transação' :
-          pieDistribution === 'industry' ? 'Indústria' : 'Estado'
-        }`}
+        title={''}
       />
       
       
@@ -284,7 +284,7 @@ const AreaCharts = () => {
         borderRadius: '8px',
         border: '1px solid #4caf50'
       }}>
-        <h3 style={{ marginBottom: '15px', color: '#2e7d32' }}>📊 Filtros do Top Contas</h3>
+        <h3 style={{ marginBottom: '15px', color: '#2e7d32' }}>{`Top ${barTopCount} Contas - Maiores Movimentações`}</h3>
         
         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '15px' }}>
           
@@ -371,7 +371,7 @@ const AreaCharts = () => {
 
       <BarChart 
         data={barData} 
-        title={`Top ${barTopCount} Contas - Maiores Movimentações`}
+        title={''}
       />
       
       <div style={{ 
@@ -381,7 +381,7 @@ const AreaCharts = () => {
         borderRadius: '8px',
         border: '1px solid #dee2e6'
       }}>
-        <h3 style={{ marginBottom: '15px', color: '#495057' }}>Filtros do Gráfico de Linha</h3>
+        <h3 style={{ marginBottom: '15px', color: '#495057' }}>Evolução Temporal</h3>
         
         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '15px' }}>
           <div>
@@ -465,7 +465,7 @@ const AreaCharts = () => {
 
       <ScrollableLineChart 
         data={lineData} 
-        title="Evolução Temporal" 
+        title="" 
         windowSize={15} 
       />
     </div>

@@ -28,7 +28,6 @@ export const GET = async (req: Request) => {
       const sortField = searchParams.get('_sort') as SortField || undefined
       const sortOrder = searchParams.get('_order') as SortOrder || undefined
 
-      // Verificar se os parâmetros de ordenação são válidos (se fornecidos)
       if (sortField && sortOrder) {
         const validSortFields: SortField[] = ['id', 'date', 'amount', 'transaction_type', 'currency', 'account', 'industry', 'state']
         const validSortOrders: SortOrder[] = ['asc', 'desc']

@@ -13,16 +13,13 @@ export const POST = async (req: Request) => {
   try {
     const { email, password, name } = bodySchema.parse(await req.json())
     
-    // Verificar se o usuário já existe
     const existingUser = await getUserMockByEmail(email)
     if (existingUser) {
       return NextResponse.json({ message: 'User already exists' }, { status: 400 })
     }
     
-    // Criar hash da senha
     const hashedPassword = bcrypt.hashSync(password, 10)
     
-    // Criar usuário
     const newUser = await createUserMock({
       email,
       password: hashedPassword,

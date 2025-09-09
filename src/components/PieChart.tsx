@@ -13,7 +13,6 @@ interface PieChartProps {
 const colors = ["#4CAF50", "#e74c3c", "#3498db", "#f39c12", "#9b59b6"]
 
 export default function PieChart({ data, title = "Distribuição" }: PieChartProps) {
-  // Converter dados para o formato do Nivo
   const nivoData = data.map((item, index) => ({
     id: item.x,
     label: item.x,
@@ -49,8 +48,8 @@ export default function PieChart({ data, title = "Distribuição" }: PieChartPro
           }}
           legends={[
             {
-              anchor: 'bottom',
-              direction: 'row',
+              anchor: 'left',
+              direction: 'column',
               justify: false,
               translateX: 0,
               translateY: 70,

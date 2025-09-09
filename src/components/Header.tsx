@@ -31,7 +31,7 @@ export default function Header() {
     }}>
       <div>
         <h1 style={{ fontSize: '1.5rem' }}>
-          <Link href="/" style={{ color: 'white' }}>
+          <Link href="/dashboard" style={{ color: 'white' }}>
             Dashboard Financeiro
           </Link>
         </h1>

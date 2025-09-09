@@ -11,7 +11,6 @@ interface LineChartProps {
 }
 
 export default function LineChart({ data, title = "Evolução Temporal" }: LineChartProps) {
-  // Converter dados para o formato do Nivo
   const nivoData = [
     {
       id: 'transações',
