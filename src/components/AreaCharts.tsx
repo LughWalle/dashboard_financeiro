@@ -14,28 +14,24 @@ const AreaCharts = () => {
   const [typeFilter, setTypeFilter] = useState<FilterType>('all')
   const [selectedYear, setSelectedYear] = useState<string>('all')
   
-  // Estados para filtros do PieChart
   const [pieDistribution, setPieDistribution] = useState<'type' | 'industry' | 'state'>('type')
   
-  // Estados para filtros do BarChart
   const [barTypeFilter, setBarTypeFilter] = useState<FilterType>('all')
   const [barTopCount, setBarTopCount] = useState<number>(10)
  
   const transactions = state.transactions
 
 
-  // Obter anos disponíveis - CORRIGIDO
   const availableYears = useMemo(() => {
     const years = new Set<number>()
     transactions.forEach(transaction => {
       const year = new Date(transaction.date).getFullYear()
       years.add(year)
     })
-    const sortedYears = Array.from(years).sort((a, b) => b - a) // Mais recente primeiro
+    const sortedYears = Array.from(years).sort((a, b) => b - a) 
     return sortedYears
   }, [transactions])
 
-  // Gerar dados do PieChart baseado na distribuição selecionada
   const pieData = useMemo(() => {
     const distributionCount: Record<string, number> = {}
     
@@ -61,15 +57,12 @@ const AreaCharts = () => {
     }))
   }, [transactions, pieDistribution])
 
-  // Gerar dados do BarChart - Top Contas
   const barData = useMemo(() => {
-    // Filtrar transações por tipo
     let filteredTransactions = transactions
     if (barTypeFilter !== 'all') {
       filteredTransactions = transactions.filter(t => t.transaction_type === barTypeFilter)
     }
 
-    // Agrupar por conta e somar valores
     const accountTotals: Record<string, number> = {}
     
     filteredTransactions.forEach(transaction => {
@@ -77,10 +70,9 @@ const AreaCharts = () => {
       if (!accountTotals[transaction.account]) {
         accountTotals[transaction.account] = 0
       }
-      accountTotals[transaction.account] += Math.abs(amount) // Usar valor absoluto para ranking
+      accountTotals[transaction.account] += Math.abs(amount) 
     })
 
-    // Converter para array, ordenar e pegar top N
     const sortedAccounts = Object.entries(accountTotals)
       .map(([account, amount]) => ({
         account,
@@ -93,7 +85,6 @@ const AreaCharts = () => {
     return sortedAccounts
   }, [transactions, barTypeFilter, barTopCount])
 
-  // Filtrar transações por ano se selecionado
   const filteredTransactionsByYear = useMemo(() => {
     if (selectedYear === 'all') {
       return transactions
@@ -105,16 +96,13 @@ const AreaCharts = () => {
     return filtered
   }, [transactions, selectedYear])
 
-  // Opções de período baseadas no filtro de ano
   const getPeriodOptions = () => {
     if (selectedYear === 'all') {
-      // Quando "todos os anos", só mostrar mês e ano
       return [
         { value: 'month', label: 'Mês' },
         { value: 'year', label: 'Ano' }
       ]
     } else {
-      // Quando ano específico, mostrar dia, semana e mês
       return [
         { value: 'day', label: 'Dia' },
         { value: 'week', label: 'Semana' },
@@ -123,16 +111,13 @@ const AreaCharts = () => {
     }
   }
 
-  // Ajustar filtro de período quando mudar o ano
   const handleYearChange = (year: string) => {
     setSelectedYear(year)
     if (year === 'all') {
-      // Se mudou para "todos os anos", usar mês como padrão
       if (lineFilter === 'day' || lineFilter === 'week') {
         setLineFilter('month')
       }
     } else {
-      // Se mudou para ano específico, usar mês como padrão
       setLineFilter('month')
     }
   }
@@ -146,23 +131,22 @@ const AreaCharts = () => {
 
       switch (period) {
         case 'day':
-          key = date.toISOString().split('T')[0] // YYYY-MM-DD
+          key = date.toISOString().split('T')[0] 
           break
         case 'week':
           const weekStart = new Date(date)
           const dayOfWeek = weekStart.getDay()
           const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
           weekStart.setDate(weekStart.getDate() + diff)
-          key = weekStart.toISOString().split('T')[0] // YYYY-MM-DD (segunda-feira)
+          key = weekStart.toISOString().split('T')[0] 
           break
         case 'month':
-          // CORRIGIDO: Usar formato que ordena corretamente
           const year = date.getFullYear()
           const month = String(date.getMonth() + 1).padStart(2, '0')
-          key = `${year}-${month}-01` // YYYY-MM-01
+          key = `${year}-${month}-01` 
           break
         case 'year':
-          key = `${date.getFullYear()}-01-01` // YYYY-01-01
+          key = `${date.getFullYear()}-01-01` 
           break
       }
 
@@ -184,9 +168,7 @@ const AreaCharts = () => {
 
     const grouped = groupDataByPeriod(filteredTransactions, lineFilter)
     
-    // CORRIGIDO: Ordenação mais robusta
     const sortedEntries = Object.entries(grouped).sort(([keyA], [keyB]) => {
-      // Converter as chaves para timestamp para ordenação correta
       const dateA = new Date(keyA).getTime()
       const dateB = new Date(keyB).getTime()
       return dateA - dateB
@@ -200,7 +182,6 @@ const AreaCharts = () => {
 
         switch (lineFilter) {
           case 'day':
-            // Corrigir timezone adicionando horário
             const dayDate = new Date(key + 'T12:00:00')
             formattedDate = dayDate.toLocaleDateString('pt-BR', { 
               day: '2-digit', 
@@ -225,16 +206,13 @@ const AreaCharts = () => {
             formattedDate = `${startFormatted} - ${endFormatted}`
             break
           case 'month':
-            // Corrigir timezone para formatação correta do mês
             const monthDate = new Date(key + 'T12:00:00')
             if (selectedYear === 'all') {
-              // Para todos os anos, mostrar mm/aaaa
               formattedDate = monthDate.toLocaleDateString('pt-BR', { 
                 month: 'short', 
                 year: 'numeric' 
               })
             } else {
-              // Para ano específico, mostrar nome do mês
               formattedDate = monthDate.toLocaleDateString('pt-BR', { month: 'long' })
             }
             break
@@ -257,8 +235,7 @@ const AreaCharts = () => {
   const lineData = processLineData()
 
   return (
-    <div>
-      {/* Filtros do Gráfico de Pizza */}
+    <div> 
       <div style={{ 
         marginBottom: '20px', 
         padding: '15px', 
@@ -268,7 +245,7 @@ const AreaCharts = () => {
       }}>
         <h3 style={{ marginBottom: '15px', color: '#ef6c00' }}>🥧 Filtros do Gráfico de Pizza</h3>
         
-        {/* Seletor de Distribuição */}
+        
         <div>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
             Distribuição por:
@@ -299,7 +276,7 @@ const AreaCharts = () => {
         }`}
       />
       
-      {/* Filtros do Gráfico de Barras */}
+      
       <div style={{ 
         marginBottom: '20px', 
         padding: '15px', 
@@ -310,7 +287,7 @@ const AreaCharts = () => {
         <h3 style={{ marginBottom: '15px', color: '#2e7d32' }}>📊 Filtros do Top Contas</h3>
         
         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '15px' }}>
-          {/* Filtro por Tipo */}
+          
           <div>
             <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
               Tipo:
@@ -331,7 +308,7 @@ const AreaCharts = () => {
             </select>
           </div>
 
-          {/* Quantidade de Contas */}
+          
           <div>
             <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
               Top:
@@ -354,7 +331,7 @@ const AreaCharts = () => {
           </div>
         </div>
 
-        {/* Informações sobre os dados */}
+        
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ 
             padding: '8px 12px', 
@@ -367,7 +344,7 @@ const AreaCharts = () => {
             <strong>{barData.length}</strong> contas exibidas
           </div>
           
-          {/* Indicadores de filtros ativos */}
+          
           {barTypeFilter !== 'all' && (
             <div style={{ 
               padding: '4px 8px', 
