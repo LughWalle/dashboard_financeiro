@@ -1,17 +1,7 @@
 'use client'
-import React, { useEffect, useState, useCallback } from 'react'
-import axios from 'axios'
-import { Transaction, SortField, SortOrder } from '@/lib/transactionsMock'
-
-interface TransactionsResponse {
-  first: number
-  prev: number | null
-  next: number | null
-  last: number
-  pages: number
-  items: number
-  data?: Transaction[]
-}
+import React from 'react'
+import { SortField } from '@/lib/transactionsMock'
+import { useTransactions } from '@/contexts/transactions'
 
 interface TransactionsListProps {
   itemsPerPage?: number
@@ -29,55 +19,46 @@ const sortOptions: { value: SortField; label: string }[] = [
 ]
 
 export default function TransactionsList({ itemsPerPage = 25 }: TransactionsListProps) {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [pagination, setPagination] = useState<TransactionsResponse | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [sortField, setSortField] = useState<SortField>('date')
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
+  const {
+    state,
+    setItemsPerPage,
+    setSort,
+    setSearch,
+    setTypeFilter,
+    getPaginatedData,
+    setPage,
+    goToNextPage,
+    goToPrevPage,
+    goToFirstPage,
+    goToLastPage
+  } = useTransactions()
 
-  const fetchTransactions = useCallback(async (page: number = 1) => {
-    try {
-      setLoading(true)
-      const response = await axios.get(
-        `/api/transactions?_page=${page}&_per_page=${itemsPerPage}&_sort=${sortField}&_order=${sortOrder}`
-      )
-      
-      setTransactions(response.data.data)
-      setPagination({
-        first: response.data.first,
-        prev: response.data.prev,
-        next: response.data.next,
-        last: response.data.last,
-        pages: response.data.pages,
-        items: response.data.items
-      })
-    } catch (error) {
-      console.error('Erro ao buscar transações:', error)
-    } finally {
-      setLoading(false)
+  const {
+    loading,
+    currentPage,
+    totalPages,
+    totalItems,
+    sortField,
+    sortOrder,
+    searchTerm,
+    typeFilter
+  } = state
+
+  React.useEffect(() => {
+    if (state.itemsPerPage !== itemsPerPage) {
+      setItemsPerPage(itemsPerPage)
     }
-  }, [itemsPerPage, sortField, sortOrder])
-
-  useEffect(() => {
-    fetchTransactions(currentPage)
-  }, [currentPage, itemsPerPage, sortField, sortOrder, fetchTransactions])
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage)
-  }
+  }, [itemsPerPage, setItemsPerPage, state.itemsPerPage])
 
   const handleSortChange = (field: SortField) => {
     if (field === sortField) {
-      // Se o mesmo campo for selecionado, inverte a ordem
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+      setSort(field, sortOrder === 'asc' ? 'desc' : 'asc')
     } else {
-      // Se um novo campo for selecionado, usa ordem ascendente
-      setSortField(field)
-      setSortOrder('asc')
+      setSort(field, 'asc')
     }
-    setCurrentPage(1) // Volta para a primeira página ao ordenar
   }
+
+  const transactions = getPaginatedData()
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString('pt-BR')
@@ -91,153 +72,295 @@ export default function TransactionsList({ itemsPerPage = 25 }: TransactionsList
   }
 
   if (loading) {
-    return <div>Carregando transações...</div>
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '200px',
+        fontSize: '18px',
+        color: '#666'
+      }}>
+        Carregando transações...
+      </div>
+    )
   }
 
   return (
     <div>
       <h2>Transações</h2>
-      
-      {/* Controles de Ordenação */}
-      <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
-        <h3>Ordenar por:</h3>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-          {sortOptions.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => handleSortChange(option.value)}
+      <div style={{ 
+        marginBottom: '20px', 
+        padding: '20px', 
+        backgroundColor: '#f8f9fa', 
+        borderRadius: '8px',
+        border: '1px solid #dee2e6'
+      }}>
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '15px' }}>
+          <div style={{ flex: '1', minWidth: '200px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+              Buscar:
+            </label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por conta, indústria, estado, valor..."
               style={{
-                padding: '8px 16px',
-                border: '1px solid #ddd',
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #ced4da',
                 borderRadius: '4px',
-                backgroundColor: sortField === option.value ? '#007bff' : '#fff',
-                color: sortField === option.value ? '#fff' : '#333',
-                cursor: 'pointer',
                 fontSize: '14px'
               }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+              Tipo:
+            </label>
+            <select 
+              value={typeFilter} 
+              onChange={(e) => setTypeFilter(e.target.value as 'all' | 'deposit' | 'withdraw')}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid #ced4da',
+                borderRadius: '4px',
+                backgroundColor: '#fff'
+              }}
             >
-              {option.label}
-              {sortField === option.value && (
-                <span style={{ marginLeft: '5px' }}>
-                  {sortOrder === 'asc' ? '↑' : '↓'}
-                </span>
-              )}
-            </button>
-          ))}
+              <option value="all">Todos</option>
+              <option value="deposit">Depósitos</option>
+              <option value="withdraw">Saques</option>
+            </select>
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+              Itens por página:
+            </label>
+            <select 
+              value={state.itemsPerPage} 
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid #ced4da',
+                borderRadius: '4px',
+                backgroundColor: '#fff'
+              }}
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+
+          <div style={{ 
+            padding: '8px 12px', 
+            backgroundColor: '#e9ecef', 
+            borderRadius: '4px',
+            fontSize: '14px',
+            color: '#495057'
+          }}>
+            <strong>{totalItems}</strong> transações encontradas
+          </div>
+        </div>
+
+        <div>
+          <h4 style={{ marginBottom: '10px', color: '#495057' }}>Ordenar por:</h4>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            {sortOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => handleSortChange(option.value)}
+                style={{
+                  padding: '8px 16px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  backgroundColor: sortField === option.value ? '#007bff' : '#fff',
+                  color: sortField === option.value ? '#fff' : '#333',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {option.label}
+                {sortField === option.value && (
+                  <span style={{ marginLeft: '5px' }}>
+                    {sortOrder === 'asc' ? '↑' : '↓'}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Lista de Transações */}
       <div style={{ marginBottom: '20px' }}>
-        {transactions.map((transaction) => (
-          <div 
-            key={transaction.id}
-            style={{
-              padding: '15px',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              marginBottom: '10px',
-              backgroundColor: '#fff'
-            }}
-          >
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
-              <div>
-                <strong>ID:</strong> {transaction.id}
-              </div>
-              <div>
-                <strong>Data:</strong> {formatDate(transaction.date)}
-              </div>
-              <div>
-                <strong>Valor:</strong> {formatAmount(transaction.amount)}
-              </div>
-              <div>
-                <strong>Tipo:</strong> {transaction.transaction_type === 'deposit' ? 'Depósito' : 'Saque'}
-              </div>
-              <div>
-                <strong>Conta:</strong> {transaction.account}
-              </div>
-              <div>
-                <strong>Moeda:</strong> {transaction.currency}
-              </div>
-              <div>
-                <strong>Indústria:</strong> {transaction.industry}
-              </div>
-              <div>
-                <strong>Estado:</strong> {transaction.state}
+        {transactions.length === 0 ? (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px', 
+            color: '#666',
+            backgroundColor: '#f8f9fa',
+            borderRadius: '8px'
+          }}>
+            Nenhuma transação encontrada com os filtros aplicados.
+          </div>
+        ) : (
+          transactions.map((transaction) => (
+            <div 
+              key={transaction.id}
+              style={{
+                padding: '15px',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                marginBottom: '10px',
+                backgroundColor: '#fff',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+                <div>
+                  <strong>ID:</strong> {transaction.id}
+                </div>
+                <div>
+                  <strong>Data:</strong> {formatDate(transaction.date)}
+                </div>
+                <div>
+                  <strong>Valor:</strong> {formatAmount(transaction.amount)}
+                </div>
+                <div>
+                  <strong>Tipo:</strong> {transaction.transaction_type === 'deposit' ? 'Depósito' : 'Saque'}
+                </div>
+                <div>
+                  <strong>Conta:</strong> {transaction.account}
+                </div>
+                <div>
+                  <strong>Moeda:</strong> {transaction.currency}
+                </div>
+                <div>
+                  <strong>Indústria:</strong> {transaction.industry}
+                </div>
+                <div>
+                  <strong>Estado:</strong> {transaction.state}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
-      {/* Paginação */}
-      {pagination && (
-        <div style={{ textAlign: 'center', padding: '20px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
-          <p style={{ marginBottom: '15px' }}>
-            Página {currentPage} de {pagination.pages} 
-            ({pagination.items} transações total)
+      {totalPages > 1 && (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '20px', 
+          backgroundColor: '#f8f9fa', 
+          borderRadius: '8px',
+          border: '1px solid #dee2e6'
+        }}>
+          <p style={{ marginBottom: '15px', fontSize: '16px', color: '#495057' }}>
+            Página {currentPage} de {totalPages} 
+            ({totalItems} transações total)
           </p>
           
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button 
-              onClick={() => handlePageChange(pagination.first)}
-              disabled={currentPage === pagination.first}
+              onClick={goToFirstPage}
+              disabled={currentPage === 1}
               style={{
                 padding: '8px 16px',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
-                backgroundColor: currentPage === pagination.first ? '#f5f5f5' : '#fff',
-                cursor: currentPage === pagination.first ? 'not-allowed' : 'pointer'
+                backgroundColor: currentPage === 1 ? '#f5f5f5' : '#fff',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                opacity: currentPage === 1 ? 0.6 : 1
               }}
             >
               Primeira
             </button>
             
             <button 
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={!pagination.prev}
+              onClick={goToPrevPage}
+              disabled={currentPage === 1}
               style={{
                 padding: '8px 16px',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
-                backgroundColor: !pagination.prev ? '#f5f5f5' : '#fff',
-                cursor: !pagination.prev ? 'not-allowed' : 'pointer'
+                backgroundColor: currentPage === 1 ? '#f5f5f5' : '#fff',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                opacity: currentPage === 1 ? 0.6 : 1
               }}
             >
               Anterior
             </button>
             
-            <span style={{ padding: '8px 16px', backgroundColor: '#007bff', color: '#fff', borderRadius: '4px' }}>
-              Página {currentPage}
+            <span style={{ 
+              padding: '8px 16px', 
+              backgroundColor: '#007bff', 
+              color: '#fff', 
+              borderRadius: '4px',
+              fontWeight: 'bold'
+            }}>
+              {currentPage}
             </span>
             
             <button 
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={!pagination.next}
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
               style={{
                 padding: '8px 16px',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
-                backgroundColor: !pagination.next ? '#f5f5f5' : '#fff',
-                cursor: !pagination.next ? 'not-allowed' : 'pointer'
+                backgroundColor: currentPage === totalPages ? '#f5f5f5' : '#fff',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                opacity: currentPage === totalPages ? 0.6 : 1
               }}
             >
               Próxima
             </button>
             
             <button 
-              onClick={() => handlePageChange(pagination.last)}
-              disabled={currentPage === pagination.last}
+              onClick={goToLastPage}
+              disabled={currentPage === totalPages}
               style={{
                 padding: '8px 16px',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
-                backgroundColor: currentPage === pagination.last ? '#f5f5f5' : '#fff',
-                cursor: currentPage === pagination.last ? 'not-allowed' : 'pointer'
+                backgroundColor: currentPage === totalPages ? '#f5f5f5' : '#fff',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                opacity: currentPage === totalPages ? 0.6 : 1
               }}
             >
               Última
             </button>
+          </div>
+
+          <div style={{ marginTop: '15px' }}>
+            <span style={{ marginRight: '10px', fontSize: '14px', color: '#666' }}>
+              Ir para página:
+            </span>
+            <input
+              type="number"
+              min="1"
+              max={totalPages}
+              value={currentPage}
+              onChange={(e) => {
+                const page = parseInt(e.target.value)
+                if (page >= 1 && page <= totalPages) {
+                  setPage(page)
+                }
+              }}
+              style={{
+                width: '60px',
+                padding: '4px 8px',
+                border: '1px solid #ced4da',
+                borderRadius: '4px',
+                textAlign: 'center'
+              }}
+            />
           </div>
         </div>
       )}

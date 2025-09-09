@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import Header from "@/components/Header"
 import AuthSidebar from "@/components/AuthSidebar"
+import { TransactionsProvider } from "@/contexts/transactions"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,11 +28,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Header />
-        <AuthSidebar />
-        <main style={{ padding: '2rem' }}>
-          {children}
-        </main>
+        <TransactionsProvider>
+          <Header />
+          <AuthSidebar />
+          <main style={{ padding: '2rem' }}>
+            {children}
+          </main>
+        </TransactionsProvider>
       </body>
     </html>
   );

@@ -6,7 +6,7 @@ export type Transaction = {
   id: number
   date: number
   amount: string
-  transaction_type: 'deposit' | 'withdrawal'
+  transaction_type: 'deposit' | 'withdraw'
   currency: string
   account: string
   industry: string

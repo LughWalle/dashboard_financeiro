@@ -11,6 +11,7 @@
     "json-server": "json-server --watch db.json --port 3001 --host localhost"
   },
   "dependencies": {
+    "@nivo/bar": "^0.99.0",
     "@nivo/core": "^0.99.0",
     "@nivo/line": "^0.99.0",
     "@nivo/pie": "^0.99.0",
