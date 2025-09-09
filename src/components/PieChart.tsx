@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
 import { ResponsivePie } from '@nivo/pie'
+import { ChartTitle, ResponsiveWrapper } from '@/styles/components'
 
 interface PieChartProps {
   data: Array<{
@@ -21,9 +22,9 @@ export default function PieChart({ data, title = "Distribuição" }: PieChartPro
   }))
 
   return (
-    <div style={{ textAlign: 'center', height: 600 }}>
-      <h3>{title}</h3>
-      <div style={{ height: 500 }}>
+    <div style={{ textAlign: 'center' }}>
+      <ChartTitle>{title}</ChartTitle>
+      <ResponsiveWrapper height="500px">
         <ResponsivePie
           data={nivoData}
           margin={{ top: 60, right: 100, bottom: 100, left: 100 }}
@@ -64,7 +65,7 @@ export default function PieChart({ data, title = "Distribuição" }: PieChartPro
             }
           ]}
         />
-      </div>
+      </ResponsiveWrapper>
     </div>
   )
 }

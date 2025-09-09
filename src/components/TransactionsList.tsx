@@ -2,6 +2,153 @@
 import React from 'react'
 import { SortField } from '@/lib/transactionsMock'
 import { useTransactions } from '@/contexts/transactions'
+import {
+  Container,
+  FilterSection,
+  FilterTitle,
+  FilterControls,
+  FilterGroup,
+  FilterLabel,
+  FilterSelect,
+  InfoSection,
+  InfoBadge,
+  FilterTag,
+  PageHeader,
+  PageTitle,
+  PageDescription
+} from '@/styles/components'
+import styled from 'styled-components'
+
+// Styled Components específicos para TransactionsList
+const TableContainer = styled.div`
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+`
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`
+
+const TableHeader = styled.thead`
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+`
+
+const TableHeaderCell = styled.th`
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+`
+
+const TableBody = styled.tbody``
+
+const TableRow = styled.tr`
+  &:hover {
+    background: #f9fafb;
+  }
+  
+  &:not(:last-child) {
+    border-bottom: 1px solid #f3f4f6;
+  }
+`
+
+const TableCell = styled.td`
+  padding: 1rem;
+  font-size: 0.875rem;
+  color: #374151;
+`
+
+const Badge = styled.span<{ variant?: 'deposit' | 'withdraw' }>`
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: ${props => props.variant === 'deposit' ? '#dcfce7' : '#fee2e2'};
+  color: ${props => props.variant === 'deposit' ? '#166534' : '#dc2626'};
+`
+
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+  gap: 1rem;
+`
+
+const PaginationControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`
+
+const PaginationButton = styled.button<{ disabled?: boolean }>`
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: ${props => props.disabled ? '#f9fafb' : '#fff'};
+  color: ${props => props.disabled ? '#9ca3af' : '#374151'};
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+  }
+`
+
+const PaginationInfo = styled.div`
+  font-size: 0.875rem;
+  color: #6b7280;
+`
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  color: #6b7280;
+  font-size: 1rem;
+`
+
+const SortButton = styled.button<{ isActive?: boolean }>`
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: ${props => props.isActive ? '#3b82f6' : '#fff'};
+  color: ${props => props.isActive ? '#fff' : '#374151'};
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  &:hover {
+    background: ${props => props.isActive ? '#2563eb' : '#f3f4f6'};
+    border-color: ${props => props.isActive ? '#2563eb' : '#9ca3af'};
+  }
+`
+
+const CurrentPageBadge = styled.span`
+  padding: 0.5rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+`
 
 interface TransactionsListProps {
   itemsPerPage?: number
@@ -73,34 +220,27 @@ export default function TransactionsList({ itemsPerPage = 25 }: TransactionsList
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '200px',
-        fontSize: '18px',
-        color: '#666'
-      }}>
+      <LoadingContainer>
         Carregando transações...
-      </div>
+      </LoadingContainer>
     )
   }
 
   return (
-    <div>
-      <h2>Transações</h2>
-      <div style={{ 
-        marginBottom: '20px', 
-        padding: '20px', 
-        backgroundColor: '#f8f9fa', 
-        borderRadius: '8px',
-        border: '1px solid #dee2e6'
-      }}>
-        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '15px' }}>
-          <div style={{ flex: '1', minWidth: '200px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-              Buscar:
-            </label>
+    <Container>
+      <PageHeader>
+        <PageTitle>💰 Transações</PageTitle>
+        <PageDescription>
+          Visualize e gerencie todas as transações financeiras
+        </PageDescription>
+      </PageHeader>
+      
+      <FilterSection>
+        <FilterTitle>🔍 Filtros e Busca</FilterTitle>
+        
+        <FilterControls hasInfo>
+          <FilterGroup style={{ flex: 1, minWidth: '200px' }}>
+            <FilterLabel>Buscar:</FilterLabel>
             <input
               type="text"
               value={searchTerm}
@@ -114,256 +254,143 @@ export default function TransactionsList({ itemsPerPage = 25 }: TransactionsList
                 fontSize: '14px'
               }}
             />
-          </div>
+          </FilterGroup>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-              Tipo:
-            </label>
-            <select 
+          <FilterGroup>
+            <FilterLabel>Tipo:</FilterLabel>
+            <FilterSelect 
               value={typeFilter} 
               onChange={(e) => setTypeFilter(e.target.value as 'all' | 'deposit' | 'withdraw')}
-              style={{
-                padding: '8px 12px',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                backgroundColor: '#fff'
-              }}
             >
               <option value="all">Todos</option>
               <option value="deposit">Depósitos</option>
               <option value="withdraw">Saques</option>
-            </select>
-          </div>
+            </FilterSelect>
+          </FilterGroup>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-              Itens por página:
-            </label>
-            <select 
+          <FilterGroup>
+            <FilterLabel>Itens por página:</FilterLabel>
+            <FilterSelect 
               value={state.itemsPerPage} 
               onChange={(e) => setItemsPerPage(Number(e.target.value))}
-              style={{
-                padding: '8px 12px',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                backgroundColor: '#fff'
-              }}
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
               <option value={50}>50</option>
               <option value={100}>100</option>
-            </select>
-          </div>
-
-          <div style={{ 
-            padding: '8px 12px', 
-            backgroundColor: '#e9ecef', 
-            borderRadius: '4px',
-            fontSize: '14px',
-            color: '#495057'
-          }}>
+            </FilterSelect>
+          </FilterGroup>
+        </FilterControls>
+        
+        <InfoSection>
+          <InfoBadge>
             <strong>{totalItems}</strong> transações encontradas
-          </div>
-        </div>
+          </InfoBadge>
+        </InfoSection>
+      </FilterSection>
 
-        <div>
-          <h4 style={{ marginBottom: '10px', color: '#495057' }}>Ordenar por:</h4>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+      <FilterSection>
+        <FilterTitle>📊 Ordenação</FilterTitle>
+        <FilterControls>
             {sortOptions.map((option) => (
-              <button
+              <SortButton
                 key={option.value}
                 onClick={() => handleSortChange(option.value)}
-                style={{
-                  padding: '8px 16px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  backgroundColor: sortField === option.value ? '#007bff' : '#fff',
-                  color: sortField === option.value ? '#fff' : '#333',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  transition: 'all 0.2s'
-                }}
+                isActive={sortField === option.value}
               >
                 {option.label}
                 {sortField === option.value && (
-                  <span style={{ marginLeft: '5px' }}>
+                  <span>
                     {sortOrder === 'asc' ? '↑' : '↓'}
                   </span>
                 )}
-              </button>
+              </SortButton>
             ))}
-          </div>
-        </div>
-      </div>
+        </FilterControls>
+      </FilterSection>
 
-      <div style={{ marginBottom: '20px' }}>
+      <TableContainer>
         {transactions.length === 0 ? (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '40px', 
-            color: '#666',
-            backgroundColor: '#f8f9fa',
-            borderRadius: '8px'
-          }}>
+          <LoadingContainer>
             Nenhuma transação encontrada com os filtros aplicados.
-          </div>
+          </LoadingContainer>
         ) : (
-          transactions.map((transaction) => (
-            <div 
-              key={transaction.id}
-              style={{
-                padding: '15px',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                marginBottom: '10px',
-                backgroundColor: '#fff',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-              }}
-            >
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
-                <div>
-                  <strong>ID:</strong> {transaction.id}
-                </div>
-                <div>
-                  <strong>Data:</strong> {formatDate(transaction.date)}
-                </div>
-                <div>
-                  <strong>Valor:</strong> {formatAmount(transaction.amount)}
-                </div>
-                <div>
-                  <strong>Tipo:</strong> {transaction.transaction_type === 'deposit' ? 'Depósito' : 'Saque'}
-                </div>
-                <div>
-                  <strong>Conta:</strong> {transaction.account}
-                </div>
-                <div>
-                  <strong>Moeda:</strong> {transaction.currency}
-                </div>
-                <div>
-                  <strong>Indústria:</strong> {transaction.industry}
-                </div>
-                <div>
-                  <strong>Estado:</strong> {transaction.state}
-                </div>
-              </div>
-            </div>
-          ))
+          <Table>
+            <TableHeader>
+              <tr>
+                <TableHeaderCell>ID</TableHeaderCell>
+                <TableHeaderCell>Data</TableHeaderCell>
+                <TableHeaderCell>Valor</TableHeaderCell>
+                <TableHeaderCell>Tipo</TableHeaderCell>
+                <TableHeaderCell>Conta</TableHeaderCell>
+                <TableHeaderCell>Indústria</TableHeaderCell>
+                <TableHeaderCell>Estado</TableHeaderCell>
+              </tr>
+            </TableHeader>
+            <TableBody>
+              {transactions.map((transaction) => (
+                <TableRow key={transaction.id}>
+                  <TableCell>{transaction.id}</TableCell>
+                  <TableCell>{formatDate(transaction.date)}</TableCell>
+                  <TableCell>{formatAmount(transaction.amount)}</TableCell>
+                  <TableCell>
+                    <Badge variant={transaction.transaction_type}>
+                      {transaction.transaction_type === 'deposit' ? 'Depósito' : 'Saque'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{transaction.account}</TableCell>
+                  <TableCell>{transaction.industry}</TableCell>
+                  <TableCell>{transaction.state}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
-      </div>
+      </TableContainer>
 
       {totalPages > 1 && (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '20px', 
-          backgroundColor: '#f8f9fa', 
-          borderRadius: '8px',
-          border: '1px solid #dee2e6'
-        }}>
-          <p style={{ marginBottom: '15px', fontSize: '16px', color: '#495057' }}>
-            Página {currentPage} de {totalPages} 
-            ({totalItems} transações total)
-          </p>
-          
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button 
-              onClick={goToFirstPage}
-              disabled={currentPage === 1}
-              style={{
-                padding: '8px 16px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                backgroundColor: currentPage === 1 ? '#f5f5f5' : '#fff',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                opacity: currentPage === 1 ? 0.6 : 1
-              }}
-            >
-              Primeira
-            </button>
+        <TableContainer>
+          <PaginationContainer>
+            <PaginationInfo>
+              Página {currentPage} de {totalPages} ({totalItems} transações total)
+            </PaginationInfo>
             
-            <button 
-              onClick={goToPrevPage}
-              disabled={currentPage === 1}
-              style={{
-                padding: '8px 16px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                backgroundColor: currentPage === 1 ? '#f5f5f5' : '#fff',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                opacity: currentPage === 1 ? 0.6 : 1
-              }}
-            >
-              Anterior
-            </button>
+            <PaginationControls>
+              <PaginationButton 
+                onClick={goToFirstPage}
+                disabled={currentPage === 1}
+              >
+                Primeira
+              </PaginationButton>
             
-            <span style={{ 
-              padding: '8px 16px', 
-              backgroundColor: '#007bff', 
-              color: '#fff', 
-              borderRadius: '4px',
-              fontWeight: 'bold'
-            }}>
-              {currentPage}
-            </span>
+              <PaginationButton 
+                onClick={goToPrevPage}
+                disabled={currentPage === 1}
+              >
+                Anterior
+              </PaginationButton>
             
-            <button 
-              onClick={goToNextPage}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: '8px 16px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                backgroundColor: currentPage === totalPages ? '#f5f5f5' : '#fff',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                opacity: currentPage === totalPages ? 0.6 : 1
-              }}
-            >
-              Próxima
-            </button>
+              <CurrentPageBadge>
+                {currentPage}
+              </CurrentPageBadge>
             
-            <button 
-              onClick={goToLastPage}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: '8px 16px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                backgroundColor: currentPage === totalPages ? '#f5f5f5' : '#fff',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                opacity: currentPage === totalPages ? 0.6 : 1
-              }}
-            >
-              Última
-            </button>
-          </div>
-
-          <div style={{ marginTop: '15px' }}>
-            <span style={{ marginRight: '10px', fontSize: '14px', color: '#666' }}>
-              Ir para página:
-            </span>
-            <input
-              type="number"
-              min="1"
-              max={totalPages}
-              value={currentPage}
-              onChange={(e) => {
-                const page = parseInt(e.target.value)
-                if (page >= 1 && page <= totalPages) {
-                  setPage(page)
-                }
-              }}
-              style={{
-                width: '60px',
-                padding: '4px 8px',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                textAlign: 'center'
-              }}
-            />
-          </div>
-        </div>
+              <PaginationButton 
+                onClick={goToNextPage}
+                disabled={currentPage === totalPages}
+              >
+                Próxima
+              </PaginationButton>
+            
+              <PaginationButton 
+                onClick={goToLastPage}
+                disabled={currentPage === totalPages}
+              >
+                Última
+              </PaginationButton>
+            </PaginationControls>
+          </PaginationContainer>
+        </TableContainer>
       )}
-    </div>
+    </Container>
   )
 }

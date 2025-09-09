@@ -1,6 +1,49 @@
 'use client'
 import React, { useState, useMemo } from 'react'
 import { ResponsiveLine } from '@nivo/line'
+import { ChartTitle, ResponsiveWrapper } from '@/styles/components'
+import styled from 'styled-components'
+
+// Styled Components
+const NavigationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+`
+
+const NavigationButton = styled.button<{ disabled?: boolean }>`
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: ${props => props.disabled ? '#f9fafb' : '#fff'};
+  color: ${props => props.disabled ? '#9ca3af' : '#374151'};
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+`
+
+const WindowInfo = styled.div`
+  padding: 0.5rem 1rem;
+  background: #f3f4f6;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+`
 
 interface ScrollableLineChartProps {
   data: Array<{
@@ -66,44 +109,39 @@ export default function ScrollableLineChart({
 
   return (
     <div style={{ textAlign: 'center' }}>
-      <h3>{title}</h3>
+      <ChartTitle>{title}</ChartTitle>
       
-      <div style={{ 
-        marginBottom: '20px', 
-        padding: '15px', 
-        backgroundColor: '#e3f2fd', 
-        borderRadius: '8px',
-        border: '1px solid #bbdefb'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-          <div style={{ fontSize: '14px', color: '#1565c0' }}>
-            <strong>Período:</strong> {windowInfo.start} → {windowInfo.end}
-          </div>
-          <div style={{ fontSize: '14px', color: '#1565c0' }}>
-            <strong>{windowInfo.count}</strong> pontos | Janela {currentWindow + 1} de {totalWindows}
-          </div>
-        </div>
+      <NavigationContainer>
+        <NavigationButton 
+          onClick={() => goToWindow(0)} 
+          disabled={currentWindow === 0}
+        >
+          ⏮️ Primeira
+        </NavigationButton>
+        <NavigationButton 
+          onClick={() => goToWindow(currentWindow - 1)} 
+          disabled={currentWindow === 0}
+        >
+          ◀️ Anterior
+        </NavigationButton>
+        <WindowInfo>
+          {currentWindow + 1} / {totalWindows}
+        </WindowInfo>
+        <NavigationButton 
+          onClick={() => goToWindow(currentWindow + 1)} 
+          disabled={currentWindow === totalWindows - 1}
+        >
+          Próximo ▶️
+        </NavigationButton>
+        <NavigationButton 
+          onClick={() => goToWindow(totalWindows - 1)} 
+          disabled={currentWindow === totalWindows - 1}
+        >
+          Última ⏭️
+        </NavigationButton>
+      </NavigationContainer>
 
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
-          <button onClick={() => goToWindow(0)} disabled={currentWindow === 0}>
-            ⏮️ Primeira
-          </button>
-          <button onClick={() => goToWindow(currentWindow - 1)} disabled={currentWindow === 0}>
-            ◀️ Anterior
-          </button>
-          <div style={{ padding: '8px 16px', backgroundColor: '#1976d2', color: '#fff', borderRadius: '4px', fontWeight: 'bold' }}>
-            {currentWindow + 1} / {totalWindows}
-          </div>
-          <button onClick={() => goToWindow(currentWindow + 1)} disabled={currentWindow === totalWindows - 1}>
-            Próximo ▶️
-          </button>
-          <button onClick={() => goToWindow(totalWindows - 1)} disabled={currentWindow === totalWindows - 1}>
-            Última ⏭️
-          </button>
-        </div>
-      </div>
-
-      <div style={{ height: 400 }}>
+      <ResponsiveWrapper height="400px">
         <ResponsiveLine
           data={windowData}
           margin={{ top: 50, right: 110, bottom: 80, left: 80 }}
@@ -144,7 +182,7 @@ export default function ScrollableLineChart({
           animate={true}
           motionConfig="gentle"
         />
-      </div>
+      </ResponsiveWrapper>
     </div>
   )
 }

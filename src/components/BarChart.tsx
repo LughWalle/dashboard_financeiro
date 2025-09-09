@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
 import { ResponsiveBar } from '@nivo/bar'
+import { ChartTitle, ResponsiveWrapper } from '@/styles/components'
 
 interface BarChartProps {
   data: Array<{
@@ -13,9 +14,9 @@ interface BarChartProps {
 
 export default function BarChart({ data, title = "Top Contas" }: BarChartProps) {
   return (
-    <div style={{ textAlign: 'center', height: 500 }}>
-      <h3>{title}</h3>
-      <div style={{ height: 450 }}>
+    <div style={{ textAlign: 'center' }}>
+      <ChartTitle>{title}</ChartTitle>
+      <ResponsiveWrapper height="450px">
         <ResponsiveBar
           data={data}
           keys={['amount']}
@@ -74,7 +75,7 @@ export default function BarChart({ data, title = "Top Contas" }: BarChartProps) 
             </div>
           )}
         />
-      </div>
+      </ResponsiveWrapper>
     </div>
   )
 }
