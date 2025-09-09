@@ -1,26 +1,95 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, ChangeEvent } from "react"
 import PieChart from "./PieChart"
 import BarChart from "./BarChart"
 import { Transaction } from "@/lib/transactionsMock"
 import ScrollableLineChart from "./ScrollableLineChart"
 import { useTransactions } from "@/contexts/transactions"
+import {
+  Container,
+  FilterSection,
+  FilterTitle,
+  FilterControls,
+  FilterGroup,
+  FilterLabel,
+  FilterSelect,
+  InfoSection,
+  InfoBadge,
+  FilterTag,
+  PageHeader,
+  PageTitle,
+  PageDescription,
+  ChartCard
+} from "@/styles/components"
 
 type FilterPeriod = 'day' | 'week' | 'month' | 'year'
 type FilterType = 'all' | 'deposit' | 'withdraw'
 
+const saveToStorage = (key: string, value: any) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(key, JSON.stringify(value))
+  }
+}
+
+const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
+  if (typeof window !== 'undefined') {
+    try {
+      const item = localStorage.getItem(key)
+      return item ? JSON.parse(item) : defaultValue
+    } catch {
+      return defaultValue
+    }
+  }
+  return defaultValue
+}
+
 const AreaCharts = () => {
   const { state } = useTransactions()
-  const [lineFilter, setLineFilter] = useState<FilterPeriod>('month')
-  const [typeFilter, setTypeFilter] = useState<FilterType>('all')
-  const [selectedYear, setSelectedYear] = useState<string>('all')
+  const [lineFilter, setLineFilter] = useState<FilterPeriod>(() => 
+    loadFromStorage('dashboard_lineFilter', 'month')
+  )
+  const [typeFilter, setTypeFilter] = useState<FilterType>(() => 
+    loadFromStorage('dashboard_typeFilter', 'all')
+  )
+  const [selectedYear, setSelectedYear] = useState<string>(() => 
+    loadFromStorage('dashboard_selectedYear', 'all')
+  )
   
-  const [pieDistribution, setPieDistribution] = useState<'type' | 'industry' | 'state'>('type')
+  const [pieDistribution, setPieDistribution] = useState<'type' | 'industry' | 'state'>(() => 
+    loadFromStorage('dashboard_pieDistribution', 'type')
+  )
   
-  const [barTypeFilter, setBarTypeFilter] = useState<FilterType>('all')
-  const [barTopCount, setBarTopCount] = useState<number>(10)
+  const [barTypeFilter, setBarTypeFilter] = useState<FilterType>(() => 
+    loadFromStorage('dashboard_barTypeFilter', 'all')
+  )
+  const [barTopCount, setBarTopCount] = useState<number>(() => 
+    loadFromStorage('dashboard_barTopCount', 10)
+  )
  
   const transactions = state.transactions
 
+  useEffect(() => {
+    saveToStorage('dashboard_lineFilter', lineFilter)
+  }, [lineFilter])
+
+  useEffect(() => {
+    saveToStorage('dashboard_typeFilter', typeFilter)
+  }, [typeFilter])
+
+  useEffect(() => {
+    saveToStorage('dashboard_selectedYear', selectedYear)
+  }, [selectedYear])
+
+  useEffect(() => {
+    saveToStorage('dashboard_pieDistribution', pieDistribution)
+  }, [pieDistribution])
+
+  useEffect(() => {
+    saveToStorage('dashboard_barTypeFilter', barTypeFilter)
+  }, [barTypeFilter])
+
+  useEffect(() => {
+    saveToStorage('dashboard_barTopCount', barTopCount)
+  }, [barTopCount])
 
   const availableYears = useMemo(() => {
     const years = new Set<number>()
@@ -235,240 +304,167 @@ const AreaCharts = () => {
   const lineData = processLineData()
 
   return (
-    <div> 
-      <div style={{ 
-        marginBottom: '20px', 
-        padding: '15px', 
-        backgroundColor: '#fff3e0', 
-        borderRadius: '8px',
-        border: '1px solid #ffcc02'
-      }}>
-        <h3 style={{ marginBottom: '15px', color: '#ef6c00' }}>{`Distribuição por ${
-          pieDistribution === 'type' ? 'Tipo de Transação' :
-          pieDistribution === 'industry' ? 'Indústria' : 'Estado'
-        }`}</h3>
+    <Container>
+      <FilterSection variant="pie">
+        <FilterTitle variant="pie">🥧 Filtros do Gráfico de Pizza</FilterTitle>
         
-        
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-            Distribuição por:
-          </label>
-          <select 
-            value={pieDistribution} 
-            onChange={(e) => setPieDistribution(e.target.value as 'type' | 'industry' | 'state')}
-            style={{
-              padding: '8px 12px',
-              border: '1px solid #ced4da',
-              borderRadius: '4px',
-              backgroundColor: '#fff',
-              fontWeight: '500'
-            }}
-          >
-            <option value="type">Tipo de Transação</option>
-            <option value="industry">Indústria</option>
-            <option value="state">Estado</option>
-          </select>
-        </div>
-      </div>
+        <FilterControls>
+          <FilterGroup>
+            <FilterLabel>Distribuição por:</FilterLabel>
+            <FilterSelect 
+              value={pieDistribution} 
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => setPieDistribution(e.target.value as 'type' | 'industry' | 'state')}
+            >
+              <option value="type">Tipo de Transação</option>
+              <option value="industry">Indústria</option>
+              <option value="state">Estado</option>
+            </FilterSelect>
+          </FilterGroup>
+        </FilterControls>
+      </FilterSection>
 
-      <PieChart 
-        data={pieData} 
-        title={''}
-      />
+      <ChartCard>
+        <PieChart 
+          data={pieData} 
+          title={`Distribuição por ${
+            pieDistribution === 'type' ? 'Tipo de Transação' :
+            pieDistribution === 'industry' ? 'Indústria' : 'Estado'
+          }`}
+        />
+      </ChartCard>
       
-      
-      <div style={{ 
-        marginBottom: '20px', 
-        padding: '15px', 
-        backgroundColor: '#e8f5e9', 
-        borderRadius: '8px',
-        border: '1px solid #4caf50'
-      }}>
-        <h3 style={{ marginBottom: '15px', color: '#2e7d32' }}>{`Top ${barTopCount} Contas - Maiores Movimentações`}</h3>
+      <FilterSection variant="bar">
+        <FilterTitle variant="bar">📊 Filtros do Top Contas</FilterTitle>
         
-        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '15px' }}>
-          
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-              Tipo:
-            </label>
-            <select 
+        <FilterControls hasInfo>
+          <FilterGroup>
+            <FilterLabel>Tipo:</FilterLabel>
+            <FilterSelect 
               value={barTypeFilter} 
-              onChange={(e) => setBarTypeFilter(e.target.value as FilterType)}
-              style={{
-                padding: '8px 12px',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                backgroundColor: '#fff'
-              }}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => setBarTypeFilter(e.target.value as FilterType)}
             >
               <option value="all">Todos</option>
               <option value="deposit">Apenas Depósitos</option>
               <option value="withdraw">Apenas Saques</option>
-            </select>
-          </div>
+            </FilterSelect>
+          </FilterGroup>
 
-          
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-              Top:
-            </label>
-            <select 
+          <FilterGroup>
+            <FilterLabel>Top:</FilterLabel>
+            <FilterSelect 
               value={barTopCount} 
-              onChange={(e) => setBarTopCount(Number(e.target.value))}
-              style={{
-                padding: '8px 12px',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                backgroundColor: '#fff'
-              }}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => setBarTopCount(Number(e.target.value))}
             >
               <option value={5}>Top 5</option>
               <option value={10}>Top 10</option>
               <option value={15}>Top 15</option>
               <option value={20}>Top 20</option>
-            </select>
-          </div>
-        </div>
+            </FilterSelect>
+          </FilterGroup>
+        </FilterControls>
 
         
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ 
-            padding: '8px 12px', 
-            backgroundColor: '#fff', 
-            borderRadius: '4px',
-            fontSize: '14px',
-            color: '#2e7d32',
-            border: '1px solid #4caf50'
-          }}>
+        <InfoSection>
+          <InfoBadge 
+            variant="bar"
+            background="#fff"
+            color="#2e7d32"
+            borderColor="#4caf50"
+          >
             <strong>{barData.length}</strong> contas exibidas
-          </div>
-          
+          </InfoBadge>
           
           {barTypeFilter !== 'all' && (
-            <div style={{ 
-              padding: '4px 8px', 
-              backgroundColor: '#4caf50', 
-              color: 'white',
-              borderRadius: '12px',
-              fontSize: '12px'
-            }}>
+            <FilterTag variant="type">
               {barTypeFilter === 'deposit' ? 'Depósitos' : 'Saques'}
-            </div>
+            </FilterTag>
           )}
           
-          <div style={{ 
-            padding: '4px 8px', 
-            backgroundColor: '#2196f3', 
-            color: 'white',
-            borderRadius: '12px',
-            fontSize: '12px'
-          }}>
+          <FilterTag variant="period">
             Todos os períodos
-          </div>
-        </div>
-      </div>
+          </FilterTag>
+        </InfoSection>
+      </FilterSection>
 
-      <BarChart 
-        data={barData} 
-        title={''}
-      />
+      <ChartCard>
+        <BarChart 
+          data={barData} 
+          title={`Top ${barTopCount} Contas - Maiores Movimentações`}
+        />
+      </ChartCard>
       
-      <div style={{ 
-        marginBottom: '20px', 
-        padding: '15px', 
-        backgroundColor: '#f8f9fa', 
-        borderRadius: '8px',
-        border: '1px solid #dee2e6'
-      }}>
-        <h3 style={{ marginBottom: '15px', color: '#495057' }}>Evolução Temporal</h3>
+      <FilterSection variant="line">
+        <FilterTitle variant="line">📈 Filtros do Gráfico de Linha</FilterTitle>
         
-        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '15px' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-              Ano:
-            </label>
-            <select 
+        <FilterControls hasInfo>
+          <FilterGroup>
+            <FilterLabel>Ano:</FilterLabel>
+            <FilterSelect 
               value={selectedYear} 
-              onChange={(e) => handleYearChange(e.target.value)}
-              style={{
-                padding: '8px 12px',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                backgroundColor: '#fff'
-              }}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => handleYearChange(e.target.value)}
             >
               <option value="all">Todos os anos</option>
               {availableYears.map(year => (
                 <option key={year} value={year.toString()}>{year}</option>
               ))}
-            </select>
-          </div>
+            </FilterSelect>
+          </FilterGroup>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-              Agrupar por:
-            </label>
-            <select 
+          <FilterGroup>
+            <FilterLabel>Agrupar por:</FilterLabel>
+            <FilterSelect 
               value={lineFilter} 
-              onChange={(e) => setLineFilter(e.target.value as FilterPeriod)}
-              style={{
-                padding: '8px 12px',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                backgroundColor: '#fff'
-              }}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => setLineFilter(e.target.value as FilterPeriod)}
             >
               {getPeriodOptions().map(option => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
-            </select>
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-              Tipo:
-            </label>
-            <select 
+            </FilterSelect>
+          </FilterGroup>
+          
+          <FilterGroup>
+            <FilterLabel>Tipo:</FilterLabel>
+            <FilterSelect 
               value={typeFilter} 
-              onChange={(e) => setTypeFilter(e.target.value as FilterType)}
-              style={{
-                padding: '8px 12px',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                backgroundColor: '#fff'
-              }}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => setTypeFilter(e.target.value as FilterType)}
             >
               <option value="all">Todos</option>
               <option value="deposit">Apenas Depósitos</option>
               <option value="withdraw">Apenas Saques</option>
-            </select>
-          </div>
+            </FilterSelect>
+          </FilterGroup>
+        </FilterControls>
 
-        </div>
+        <InfoSection>
+          <InfoBadge 
+            variant="line"
+            background="#fff"
+            color="#495057"
+            borderColor="#dee2e6"
+          >
+            <strong>{lineData.length}</strong> pontos disponíveis
+          </InfoBadge>
 
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <FilterTag variant="period">
+            📊 Gráfico Navegável
+          </FilterTag>
 
           {selectedYear !== 'all' && (
-            <div style={{ 
-              padding: '8px 12px', 
-              backgroundColor: '#fff3e0', 
-              borderRadius: '4px',
-              fontSize: '12px',
-              color: '#ef6c00',
-              border: '1px solid #ffcc02'
-            }}>
+            <FilterTag background="#fff3e0" style={{ color: '#ef6c00', border: '1px solid #ffcc02' }}>
               📅 Ano {selectedYear}
-            </div>
+            </FilterTag>
           )}
-        </div>
-      </div>
+        </InfoSection>
+      </FilterSection>
 
-      <ScrollableLineChart 
-        data={lineData} 
-        title="" 
-        windowSize={15} 
-      />
-    </div>
+      <ChartCard>
+        <ScrollableLineChart 
+          data={lineData} 
+          title="Evolução Temporal" 
+          windowSize={15} 
+        />
+      </ChartCard>
+    </Container>
   )
 }
 
