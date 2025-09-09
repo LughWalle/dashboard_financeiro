@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dashboard Financeiro
 
-## Getting Started
+Sistema de gestão financeira desenvolvido com Next.js e Node.js.
 
-First, run the development server:
+## Pré-requisitos
+
+- Node.js >= 20.0.0
+- npm >= 8.0.0
+
+## Configuração do Node.js
+
+### Usando nvm (recomendado)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Instalar a versão correta do Node.js
+nvm install 20.19.0
+nvm use 20.19.0
+
+# Verificar a versão
+node --version
+npm --version
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Usando n (alternativa)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Instalar a versão correta do Node.js
+n 18.19.0
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Verificar a versão
+node --version
+npm --version
+```
 
-## Learn More
+## Instalação
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Instalar dependências
+npm install
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Configurar variáveis de ambiente
+cp .env.example .env.local
+# Editar .env.local com suas configurações
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts Disponíveis
 
-## Deploy on Vercel
+- `npm run dev` - Inicia o servidor de desenvolvimento
+- `npm run dev:all` - Inicia Next.js e JSON Server simultaneamente
+- `npm run build` - Constrói o projeto para produção
+- `npm run start` - Inicia o servidor de produção
+- `npm run lint` - Executa o linter
+- `npm run lint:fix` - Corrige automaticamente problemas do linter
+- `npm run type-check` - Verifica tipos TypeScript
+- `npm run json-server` - Inicia o JSON Server para dados mock
+- `npm run clean` - Remove arquivos de build
+- `npm run clean:all` - Remove tudo e reinstala dependências
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Desenvolvimento
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# Iniciar desenvolvimento completo
+npm run dev:all
+```
+
+O projeto estará disponível em:
+- Next.js: http://localhost:3000
+- JSON Server: http://localhost:3001
+
+## Estrutura do Projeto
+
+```
+src/
+├── app/                 # App Router do Next.js
+├── components/          # Componentes React
+├── hooks/              # Custom hooks
+├── lib/                # Utilitários e configurações
+└── middleware.ts       # Middleware de autenticação
+```

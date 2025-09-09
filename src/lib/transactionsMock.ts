@@ -1,3 +1,5 @@
+import axios from "axios"
+
 const API_URL = 'http://localhost:3001'
 
 export type Transaction = {
@@ -11,16 +13,41 @@ export type Transaction = {
   state: string
 }
 
-export const getAllTransactionsMock = async (page: number, limit: number): Promise<Transaction[]> => {
+export type SortField = 'id' | 'date' | 'amount' | 'transaction_type' | 'currency' | 'account' | 'industry' | 'state'
+export type SortOrder = 'asc' | 'desc'
+
+export const getAllTransactionsMock = async (
+  sortField?: SortField, 
+  sortOrder?: SortOrder
+): Promise<Transaction[]> => {
   try {
-    const response = await fetch(`${API_URL}/transactions?_page=${page}&_per_page=${limit}`)
-    const transactions = await response.json()
-    console.log(transactions)
+    let url = `${API_URL}/transactions`
+    if (sortField && sortOrder) {
+      url += `?_sort=${sortField}&_order=${sortOrder}`
+    }
+    const response = await axios.get(url)
+    const transactions = await response.data
     return transactions
-    // const transactions = await response.json()
-    // const start = (page - 1) * limit
-    // const end = start + limit
-    // return transactions.slice(start, end)
+  } catch (error) {
+    console.error('Erro ao buscar transações:', error)
+    return []
+  }
+}
+
+export const getPaginatedTransactionsMock = async (
+  page: number, 
+  limit: number,
+  sortField?: SortField, 
+  sortOrder?: SortOrder
+): Promise<Transaction[]> => {
+  try {
+    let url = `${API_URL}/transactions?_page=${page}&_per_page=${limit}`
+    if (sortField && sortOrder) {
+      url += `&_sort=${sortField}&_order=${sortOrder}`
+    }
+    const response = await axios.get(url)
+    const transactions = await response.data
+    return transactions
   } catch (error) {
     console.error('Erro ao buscar transações:', error)
     return []

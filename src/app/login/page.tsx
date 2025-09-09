@@ -38,7 +38,6 @@ export default function Login() {
         </form>
         {error && <p style={{color: 'red'}}>{error}</p>}
         <p>Don&apos;t have an account? <a href="/register">Register</a></p>
-        <p>Forgot your password? <a href="/forgot">Forgot Password</a></p>
     </>
   )
 }

@@ -3,11 +3,13 @@ import React from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import axios from 'axios'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 export default function Header() {
   const { user, isAuthenticated } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+  console.log(pathname)
 
   const logout = async () => {
     try {
@@ -35,7 +37,7 @@ export default function Header() {
         </h1>
       </div>
       
-      {isAuthenticated && (
+      {isAuthenticated ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <span>Olá, {user?.name || 'Usuário'}</span>
           <button
@@ -51,6 +53,15 @@ export default function Header() {
           >
             Logout
           </button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {!['/login', '/register'].includes(pathname) && (
+            <>
+              <Link href="/login" style={{ color: 'white' }}>Login</Link>
+              <Link href="/register" style={{ color: 'white' }}>Register</Link>
+            </>
+            )}
         </div>
       )}
     </header>
