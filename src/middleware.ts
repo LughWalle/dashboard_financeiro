@@ -42,6 +42,7 @@ export const middleware = async (req: NextRequest) => {
   } catch (error) {
     const loginUrl = new URL('/login', req.url)
     loginUrl.searchParams.set('next', pathname)
+    console.error('Erro ao verificar autenticação:', error)
     return NextResponse.redirect(loginUrl)
   }
 }
