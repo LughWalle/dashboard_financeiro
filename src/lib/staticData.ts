@@ -19,9 +19,8 @@ export type User = {
   role: string
   password: string
 }
-
 // Dados de transações do arquivo JSON
-export const transactions: Transaction[] = transactionsJson.map((transaction, index) => ({
+export const transactions: Transaction[] = (transactionsJson as Transaction[]).map((transaction: Transaction, index: number) => ({
   id: index + 1,
   date: transaction.date,
   amount: transaction.amount,
@@ -65,14 +64,14 @@ export const sortTransactions = (data: Transaction[], sortField?: SortField, sor
   if (!sortField || !sortOrder) return data
 
   return [...data].sort((a, b) => {
-    let aValue: any = a[sortField]
-    let bValue: any = b[sortField]
+    let aValue: number | string | undefined = a[sortField]
+    let bValue: number | string | undefined = b[sortField]
 
     // Conversão de tipos para ordenação
     if (sortField === 'date' || sortField === 'id') {
       aValue = Number(aValue)
       bValue = Number(bValue)
-    } else if (sortField === 'amount') {
+    } else if (sortField === 'amount' && typeof aValue === 'string' && typeof bValue === 'string') {
       aValue = parseFloat(aValue)
       bValue = parseFloat(bValue)
     } else {

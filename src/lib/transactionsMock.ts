@@ -49,7 +49,15 @@ export const getPaginatedTransactionsMock = async (
   limit: number = 10,
   sortField?: SortField,
   sortOrder?: SortOrder
-): Promise<any> => {
+): Promise<{
+  data: Transaction[],
+  first: number,
+  last: number,
+  next: number | null,
+  pages: number,
+  prev: number | null,
+  items: number
+}> => {
   try {
     let url = `${API_URL}/api/transactions?_page=${page}&_per_page=${limit}`
     

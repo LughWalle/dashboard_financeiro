@@ -3,7 +3,6 @@ import {
   transactions,
   sortTransactions,
   paginateTransactions,
-  Transaction,
   SortField,
   SortOrder 
 } from "@/lib/staticData"
