@@ -25,7 +25,7 @@ export default function DashboardSidebar() {
   const handleLogout = async () => {
     try { 
       await fetch('/api/auth/logout', {
-        method: 'POST',
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -33,7 +33,7 @@ export default function DashboardSidebar() {
     } catch (error) {
       console.error('Erro no logout:', error)
     } finally {
-      router.push('/')
+      router.push('/login')
     }
   }
 

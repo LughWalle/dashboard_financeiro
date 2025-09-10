@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:all": "concurrently \"npm run json-server\" \"npm run dev\"",
+    "dev:all": "npm run dev",
     "build": "next build",
-    "start": "concurrently \"npm run json-server\" \"next start\"",
+    "start": "next start",
     "lint": "eslint",
     "json-server": "json-server --watch db.json --port 3001 --host localhost"
   },

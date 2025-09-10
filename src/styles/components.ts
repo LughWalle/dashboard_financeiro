@@ -1,10 +1,18 @@
-import styled from 'styled-components'
+import styled from "styled-components"
+
+interface StyledProps {
+  variant?: 'pie' | 'bar' | 'line' | 'type' | 'account' | 'industry' | 'state' | 'period'
+  background?: string
+  color?: string
+  borderColor?: string
+  hasInfo?: boolean
+}
 
 // Container principal
 export const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
 `
 
 // Seção de filtros
@@ -13,22 +21,22 @@ export const FilterSection = styled.div<{ variant?: 'pie' | 'bar' | 'line' }>`
   padding: 1rem;
   background: ${props => {
     switch (props.variant) {
-      case 'pie': return '#fff3e0'
-      case 'bar': return '#e8f5e9'
-      case 'line': return '#f8f9fa'
-      default: return '#f8f9fa'
+      case 'pie': return '#fff3e0';
+      case 'bar': return '#e8f5e9';
+      case 'line': return '#f8f9fa';
+      default: return '#f8f9fa';
     }
   }};
   border-radius: 8px;
   border: 1px solid ${props => {
     switch (props.variant) {
-      case 'pie': return '#ffcc02'
-      case 'bar': return '#4caf50'
-      case 'line': return '#dee2e6'
-      default: return '#dee2e6'
+      case 'pie': return '#ffcc02';
+      case 'bar': return '#4caf50';
+      case 'line': return '#dee2e6';
+      default: return '#dee2e6';
     }
   }};
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `
 
 // Título da seção de filtros
@@ -38,19 +46,18 @@ export const FilterTitle = styled.h3<{ variant?: 'pie' | 'bar' | 'line' }>`
   font-weight: 600;
   color: ${props => {
     switch (props.variant) {
-      case 'pie': return '#ef6c00'
-      case 'bar': return '#2e7d32'
-      case 'line': return '#495057'
-      default: return '#495057'
+      case 'pie': return '#e65100';
+      case 'bar': return '#2e7d32';
+      case 'line': return '#495057';
+      default: return '#495057';
     }
   }};
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 `
 
 // Container dos controles de filtro
-export const FilterControls = styled.div<{ hasInfo?: boolean }>`
+export const FilterControls = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['hasInfo'].includes(prop),
+})<{ hasInfo?: boolean }>`
   display: flex;
   gap: 1.5rem;
   flex-wrap: wrap;
@@ -58,118 +65,127 @@ export const FilterControls = styled.div<{ hasInfo?: boolean }>`
   margin-bottom: ${props => props.hasInfo ? '1rem' : '0'};
 `
 
-// Grupo individual de filtro
+// Grupo de filtro individual
 export const FilterGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  min-width: 150px;
 `
 
 // Label do filtro
 export const FilterLabel = styled.label`
-  display: block;
-  font-weight: 500;
   font-size: 0.9rem;
-  color: #374151;
+  font-weight: 500;
+  color: #495057;
 `
 
 // Select do filtro
 export const FilterSelect = styled.select`
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: #fff;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: white;
   font-size: 0.9rem;
-  color: #374151;
+  color: #495057;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 120px;
-
-  &:hover {
-    border-color: #9ca3af;
-  }
-
+  
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
   }
 `
 
 // Seção de informações
 export const InfoSection = styled.div`
   display: flex;
-  gap: 0.75rem;
+  gap: 1rem;
   flex-wrap: wrap;
   align-items: center;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
 `
 
 // Badge de informação
-export const InfoBadge = styled.div<{ 
-  background?: string
-  color?: string
-  borderColor?: string
-  variant?: 'pie' | 'bar' | 'line'
-}>`
-  padding: 0.5rem 0.75rem;
-  background: ${props => props.background || '#fff'};
-  border-radius: 6px;
+export const InfoBadge = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['variant', 'background', 'color', 'borderColor'].includes(prop),
+})<StyledProps>`
+  padding: 0.5rem 1rem;
+  background: ${props => props.background || '#e9ecef'};
+  border-radius: 20px;
   font-size: 0.85rem;
-  color: ${props => props.color || '#374151'};
-  border: 1px solid ${props => props.borderColor || '#e5e7eb'};
   font-weight: 500;
+  color: ${props => props.color || '#495057'};
+  border: 1px solid ${props => props.borderColor || '#dee2e6'};
 `
 
-// Tag de filtro ativo
-export const FilterTag = styled.div<{ 
-  background?: string
-  variant?: 'type' | 'account' | 'industry' | 'state' | 'period'
-}>`
-  padding: 0.25rem 0.5rem;
+// Tag de filtro
+export const FilterTag = styled.span.withConfig({
+  shouldForwardProp: (prop) => !['variant'].includes(prop),
+})<StyledProps>`
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
   background: ${props => {
-    if (props.background) return props.background
     switch (props.variant) {
-      case 'type': return '#4caf50'
-      case 'account': return '#2196f3'
-      case 'industry': return '#ff9800'
-      case 'state': return '#9c27b0'
-      case 'period': return '#2196f3'
-      default: return '#3b82f6'
+      case 'type': return '#d1ecf1';
+      case 'period': return '#d4edda';
+      case 'account': return '#fff3cd';
+      case 'industry': return '#f8d7da';
+      case 'state': return '#e2e3e5';
+      default: return '#e2e3e5';
     }
   }};
-  color: white;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
+  color: ${props => {
+    switch (props.variant) {
+      case 'type': return '#0c5460';
+      case 'period': return '#155724';
+      case 'account': return '#856404';
+      case 'industry': return '#721c24';
+      case 'state': return '#383d41';
+      default: return '#383d41';
+    }
+  }};
+  border: 1px solid ${props => {
+    switch (props.variant) {
+      case 'type': return '#bee5eb';
+      case 'period': return '#c3e6cb';
+      case 'account': return '#faeaa3';
+      case 'industry': return '#f5c6cb';
+      case 'state': return '#d6d8db';
+      default: return '#d6d8db';
+    }
+  }};
 `
 
-// Header da página
+// Cabeçalho da página
 export const PageHeader = styled.div`
   margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #e2e8f0;
+  text-align: center;
 `
 
 // Título da página
 export const PageTitle = styled.h1`
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
-  font-weight: 600;
-  color: #1e293b;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  font-weight: 700;
+  color: #2c3e50;
 `
 
 // Descrição da página
 export const PageDescription = styled.p`
   margin: 0;
-  font-size: 1rem;
-  color: #64748b;
+  font-size: 1.1rem;
+  color: #6c757d;
   line-height: 1.5;
 `
 
-// Card wrapper para gráficos
+// Card para gráficos
 export const ChartCard = styled.div`
   background: white;
   border-radius: 12px;
@@ -461,7 +477,9 @@ export const ButtonGroup = styled.div<{ orientation?: 'horizontal' | 'vertical' 
 `
 
 // Componentes de Formulário Avançados
-export const FormGroup = styled.div<{ hasError?: boolean }>`
+export const FormGroup = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['hasError'].includes(prop),
+})<{ hasError?: boolean }>`
   margin-bottom: 1rem;
   
   ${props => props.hasError ? `
