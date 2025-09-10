@@ -33,6 +33,6 @@ export const POST = async (req: Request) => {
     
     return NextResponse.json({ message: 'User created successfully', user: newUser }, { status: 201 })
   } catch (error) {
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ message: 'Internal server error', error: error }, { status: 500 })
   }
 }

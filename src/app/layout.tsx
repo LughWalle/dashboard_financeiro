@@ -1,9 +1,7 @@
 'use client'
-import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import Header from "@/components/Header"
-import AuthSidebar from "@/components/AuthSidebar"
 import { TransactionsProvider } from "@/contexts/transactions"
 import { usePathname } from 'next/navigation'
 

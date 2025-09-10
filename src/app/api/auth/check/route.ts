@@ -6,6 +6,6 @@ export const GET = async () => {
     const user = await getAuthUser()
     return NextResponse.json({ user, isAuthenticated: !!user }, { status: 200 })
   } catch (error) {
-    return NextResponse.json({ user: null, isAuthenticated: false }, { status: 200 })
+    return NextResponse.json({ user: null, isAuthenticated: false, error: error }, { status: 200 })
   }
 }

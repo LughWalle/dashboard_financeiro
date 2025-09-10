@@ -35,8 +35,12 @@ export default function Login() {
       if (response.status === 200) {
         window.location.href = '/dashboard'
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao fazer login')
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Erro ao fazer login');
+      } else {
+        setError('Ocorreu um erro inesperado.');
+      }
     } finally {
       setLoading(false)
     }

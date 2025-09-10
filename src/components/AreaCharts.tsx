@@ -15,16 +15,13 @@ import {
   InfoSection,
   InfoBadge,
   FilterTag,
-  PageHeader,
-  PageTitle,
-  PageDescription,
   ChartCard
 } from "@/styles/components"
 
 type FilterPeriod = 'day' | 'week' | 'month' | 'year'
 type FilterType = 'all' | 'deposit' | 'withdraw'
 
-const saveToStorage = (key: string, value: any) => {
+const saveToStorage = (key: string, value: string | number | boolean) => {
   if (typeof window !== 'undefined') {
     localStorage.setItem(key, JSON.stringify(value))
   }
@@ -246,7 +243,6 @@ const AreaCharts = () => {
     
     const chartData = sortedEntries
       .map(([key, value]) => {
-        const date = new Date(key)
         let formattedDate = ''
 
         switch (lineFilter) {

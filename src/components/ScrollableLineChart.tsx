@@ -80,19 +80,6 @@ export default function ScrollableLineChart({
     ]
   }, [data, startIndex, endIndex])
 
-  const windowInfo = useMemo(() => {
-    if (data.length === 0) return { start: '', end: '', count: 0 }
-    
-    const startItem = data[startIndex]
-    const endItem = data[endIndex - 1]
-    
-    return {
-      start: startItem?.x || '',
-      end: endItem?.x || '',
-      count: endIndex - startIndex
-    }
-  }, [data, startIndex, endIndex])
-
   const goToWindow = (windowIndex: number) => {
     if (windowIndex >= 0 && windowIndex < totalWindows) {
       setCurrentWindow(windowIndex)

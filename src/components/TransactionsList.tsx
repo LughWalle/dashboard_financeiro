@@ -12,7 +12,6 @@ import {
   FilterSelect,
   InfoSection,
   InfoBadge,
-  FilterTag,
   PageHeader,
   PageTitle,
   PageDescription
@@ -173,7 +172,6 @@ export default function TransactionsList({ itemsPerPage = 25 }: TransactionsList
     setSearch,
     setTypeFilter,
     getPaginatedData,
-    setPage,
     goToNextPage,
     goToPrevPage,
     goToFirstPage,

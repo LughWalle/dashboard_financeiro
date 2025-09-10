@@ -42,6 +42,6 @@ export const GET = async (req: Request) => {
 
     return NextResponse.json(transactions, { status: 200 })
   } catch (error) {
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ message: 'Internal server error', error: error }, { status: 500 })
   }
 }

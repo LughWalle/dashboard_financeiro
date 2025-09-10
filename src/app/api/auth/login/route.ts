@@ -18,6 +18,6 @@ export const POST = async (req: Request) => {
     await setAuthCookie(token)
     return NextResponse.json({ message: 'Login successful', user }, { status: 200 })
   } catch (error) {
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ message: 'Internal server error', error: error }, { status: 500 })
   }
 }

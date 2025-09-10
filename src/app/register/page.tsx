@@ -53,8 +53,12 @@ export default function Register() {
           window.location.href = '/login'
         }, 2000)
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao criar conta')
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Erro ao criar conta')
+      } else {
+        setError('Ocorreu um erro inesperado.')
+      }
     } finally {
       setLoading(false)
     }

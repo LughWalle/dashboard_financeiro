@@ -43,6 +43,7 @@ import {
   PageTitle,
   PageDescription
 } from '@/styles/components'
+import Link from 'next/link'
 
 export default function ExampleComponents() {
   const [activeTab, setActiveTab] = useState('cards')
@@ -65,10 +66,10 @@ export default function ExampleComponents() {
       {/* Breadcrumb */}
       <Breadcrumb style={{ marginBottom: '2rem' }}>
         <BreadcrumbItem>
-          <a href="/">Home</a>
+          <Link href="/">Home</Link>
         </BreadcrumbItem>
         <BreadcrumbItem>
-          <a href="/dashboard">Dashboard</a>
+          <Link href="/dashboard">Dashboard</Link>
         </BreadcrumbItem>
         <BreadcrumbItem isActive>
           Componentes
