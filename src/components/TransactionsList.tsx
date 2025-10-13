@@ -213,7 +213,7 @@ export default function TransactionsList({ itemsPerPage = 25 }: TransactionsList
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
-    }).format(parseFloat(amount))
+    }).format(parseFloat(amount) / 100)
   }
 
   if (loading) {

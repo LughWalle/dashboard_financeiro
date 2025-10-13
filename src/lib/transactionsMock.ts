@@ -1,4 +1,3 @@
-// Agora usa as API routes internas do Next.js em vez do JSON Server
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
 
 export type Transaction = {
