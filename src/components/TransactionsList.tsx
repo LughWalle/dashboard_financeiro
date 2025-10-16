@@ -17,6 +17,7 @@ import {
   PageDescription
 } from '@/styles/components'
 import styled from 'styled-components'
+import { formatAmount } from '@/utils'
 
 // Styled Components específicos para TransactionsList
 const TableContainer = styled.div`
@@ -207,13 +208,6 @@ export default function TransactionsList({ itemsPerPage = 25 }: TransactionsList
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString('pt-BR')
-  }
-
-  const formatAmount = (amount: string) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(parseFloat(amount) / 100)
   }
 
   if (loading) {

@@ -17,6 +17,7 @@ import {
   FilterTag,
   ChartCard
 } from "@/styles/components"
+import { formatAmount } from '@/utils'
 
 type FilterPeriod = 'day' | 'week' | 'month' | 'year'
 type FilterType = 'all' | 'deposit' | 'withdraw'
@@ -128,10 +129,13 @@ const AreaCharts = () => {
       distributionCount[key] = (distributionCount[key] || 0) + 1
     })
 
-    return Object.entries(distributionCount).map(([key, value]) => ({
-      x: key,
-      y: value
-    }))
+    return Object.entries(distributionCount).map(([key, value]) => {
+      console.log("Valor pie data: ", value, key)
+      return {
+        x: key,
+        y: value
+      }
+    })
   }, [transactions, pieDistribution])
 
   const barData = useMemo(() => {
@@ -143,18 +147,18 @@ const AreaCharts = () => {
     const accountTotals: Record<string, number> = {}
     
     filteredTransactions.forEach(transaction => {
-      const amount = parseFloat(transaction.amount)
+      const amount = +transaction.amount / 100
       if (!accountTotals[transaction.account]) {
         accountTotals[transaction.account] = 0
       }
-      accountTotals[transaction.account] += Math.abs(amount) 
+      accountTotals[transaction.account] += Math.abs(amount)
     })
 
     const sortedAccounts = Object.entries(accountTotals)
       .map(([account, amount]) => ({
         account,
         amount,
-        formattedAmount: `R$ ${amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+        formattedAmount: formatAmount(amount.toString())
       }))
       .sort((a, b) => b.amount - a.amount)
       .slice(0, barTopCount)
@@ -230,7 +234,7 @@ const AreaCharts = () => {
       if (!grouped[key]) {
         grouped[key] = { total: 0, count: 0 }
       }
-      grouped[key].total += Number(transaction.amount)
+      grouped[key].total += Number(transaction.amount) / 100
       grouped[key].count += 1
     })
 
