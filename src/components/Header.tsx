@@ -27,7 +27,9 @@ export default function Header() {
       padding: '1rem',
       display: 'flex',
       justifyContent: 'space-between',
-      alignItems: 'center'
+      alignItems: 'center',
+      position: 'absolute',
+      width: '100%',
     }}>
       <div>
         <h1 style={{ fontSize: '1.5rem' }}>

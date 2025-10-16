@@ -44,7 +44,6 @@ export default function LineChart({ data, title = "Evolução Temporal" }: LineC
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: 'Data',
             legendOffset: 36,
             legendPosition: 'middle'
           }}
@@ -52,7 +51,6 @@ export default function LineChart({ data, title = "Evolução Temporal" }: LineC
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: 'Valor',
             legendOffset: -40,
             legendPosition: 'middle'
           }}
@@ -64,8 +62,8 @@ export default function LineChart({ data, title = "Evolução Temporal" }: LineC
           useMesh={true}
           legends={[
             {
-              anchor: 'bottom-right',
-              direction: 'column',
+              anchor: 'bottom',
+              direction: 'row',
               justify: false,
               translateX: 100,
               translateY: 0,

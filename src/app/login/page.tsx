@@ -48,13 +48,23 @@ export default function Login() {
 
   return (
     <Container>
+      <Flex 
+        direction="column" 
+        justify="center" 
+        align="center" 
+        style={{ 
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          padding: '2rem'
+        }}
+      >
         <Card 
           variant="elevated" 
           padding="xl"
           style={{ 
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             width: '100%', 
             maxWidth: '400px',
+            background: 'white'
           }}
         >
           <CardHeader>
@@ -129,6 +139,7 @@ export default function Login() {
             </Flex>
           </CardFooter>
         </Card>
+      </Flex>
     </Container>
   )
 }

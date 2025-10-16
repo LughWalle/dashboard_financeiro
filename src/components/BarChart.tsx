@@ -34,20 +34,11 @@ export default function BarChart({ data, title = "Top Contas" }: BarChartProps) 
           }}
           axisTop={null}
           axisRight={null}
-          axisBottom={{
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 0,
-            legend: 'Valor Total (R$)',
-            legendPosition: 'middle',
-            legendOffset: 32,
-            format: (value) => `R$${value.toLocaleString('pt-BR')}`
-          }}
+          axisBottom={null}
           axisLeft={{
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: 'Conta',
             legendPosition: 'middle',
             legendOffset: -180
           }}

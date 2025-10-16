@@ -31,7 +31,7 @@ export default function RootLayout({
           {isDashboard ? (
             children
           ) : (
-            <main style={{ padding: '2rem' }}>
+            <main>
               {children}
             </main>
           )}
