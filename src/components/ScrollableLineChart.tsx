@@ -147,7 +147,6 @@ export default function ScrollableLineChart({
             tickSize: 5,
             tickPadding: 5,
             tickRotation: -45,
-            legend: 'Data',
             legendOffset: 50,
             legendPosition: 'middle'
           }}
@@ -156,7 +155,6 @@ export default function ScrollableLineChart({
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: 'Valor (R$)',
             legendOffset: -60,
             legendPosition: 'middle'
           }}

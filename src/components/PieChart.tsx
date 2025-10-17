@@ -1,5 +1,5 @@
-'use client'
-import React from 'react'
+"use client"
+import React, { useEffect, useState } from 'react'
 import { ResponsivePie } from '@nivo/pie'
 import { ChartTitle, ResponsiveWrapper } from '@/styles/components'
 
@@ -21,6 +21,15 @@ export default function PieChart({ data, title = "Distribuição" }: PieChartPro
     color: colors[index % colors.length]
   }))
 
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
   return (
     <div style={{ textAlign: 'center' }}>
       <ChartTitle>{title}</ChartTitle>
@@ -38,7 +47,8 @@ export default function PieChart({ data, title = "Distribuição" }: PieChartPro
             from: 'color',
             modifiers: [['darker', 0.2]]
           }}
-          arcLinkLabelsSkipAngle={10}
+          enableArcLinkLabels={!isMobile}
+          arcLinkLabelsSkipAngle={isMobile ? 360 : 10}
           arcLinkLabelsTextColor="#333333"
           arcLinkLabelsThickness={2}
           arcLinkLabelsColor={{ from: 'color' }}
@@ -47,7 +57,7 @@ export default function PieChart({ data, title = "Distribuição" }: PieChartPro
             from: 'color',
             modifiers: [['darker', 2]]
           }}
-          legends={[
+          legends={isMobile ? [
             {
               anchor: 'left',
               direction: 'column',
@@ -63,7 +73,7 @@ export default function PieChart({ data, title = "Distribuição" }: PieChartPro
               symbolSize: 18,
               symbolShape: 'circle'
             }
-          ]}
+          ] : []}
         />
       </ResponsiveWrapper>
     </div>

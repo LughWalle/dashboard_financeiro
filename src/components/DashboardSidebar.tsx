@@ -1,11 +1,25 @@
-'use client'
-import React from 'react'
+"use client"
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
-export default function DashboardSidebar() {
+type Props = {
+  open?: boolean
+  onClose?: () => void
+}
+
+export default function DashboardSidebar({ open = true, onClose }: Props) {
   const pathname = usePathname()
   const router = useRouter()
+
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   const menuItems = [
     {
@@ -25,7 +39,7 @@ export default function DashboardSidebar() {
   const handleLogout = async () => {
     try { 
       await fetch('/api/auth/logout', {
-        method: 'POST',
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -33,24 +47,59 @@ export default function DashboardSidebar() {
     } catch (error) {
       console.error('Erro no logout:', error)
     } finally {
-      router.push('/')
+      router.push('/login')
     }
   }
 
+  const sidebarLeft = isMobile ? (open ? '0' : '-320px') : '0'
+
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '280px',
-      height: '100vh',
-      backgroundColor: '#1e293b',
-      color: 'white',
-      padding: '0',
-      boxShadow: '4px 0 12px rgba(0, 0, 0, 0.1)',
-      zIndex: 1000,
-      overflowY: 'auto'
-    }}>
+    <>
+      {isMobile && open && (
+        <div
+          onClick={() => onClose && onClose()}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.35)',
+            zIndex: 900
+          }}
+        />
+      )}
+
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: sidebarLeft,
+        width: '280px',
+        height: '100vh',
+        backgroundColor: '#1e293b',
+        color: 'white',
+        padding: '0',
+        boxShadow: '4px 0 12px rgba(0, 0, 0, 0.1)',
+        zIndex: 1000,
+        overflowY: 'auto',
+        transition: 'left 240ms ease-in-out'
+      }}>
+        {isMobile && (
+          <button
+            aria-label="Fechar menu"
+            onClick={() => onClose && onClose()}
+            style={{
+              position: 'absolute',
+              right: '12px',
+              top: '12px',
+              zIndex: 1100,
+              background: 'transparent',
+              border: 'none',
+              color: '#cbd5e1',
+              fontSize: '1.25rem',
+              cursor: 'pointer'
+            }}
+          >
+            ✕
+          </button>
+        )}
       <div style={{
         padding: '2rem 1.5rem 1.5rem',
         borderBottom: '1px solid #334155',
@@ -256,5 +305,6 @@ export default function DashboardSidebar() {
         </button>
       </div>
     </div>
+    </>
   )
 }

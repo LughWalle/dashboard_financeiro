@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import bcrypt from "bcryptjs"
-import { createUserMock, getUserMockByEmail } from "@/lib/userMock"
+import { createUser, findUserByEmail } from "@/lib/staticData"
 
 const bodySchema = z.object({
-  email: z.email(),
+  email: z.string().email(),
   password: z.string().min(6),
   name: z.string().min(2),
 })
@@ -13,26 +13,38 @@ export const POST = async (req: Request) => {
   try {
     const { email, password, name } = bodySchema.parse(await req.json())
     
-    const existingUser = await getUserMockByEmail(email)
+    // Verificar se usuário já existe
+    const existingUser = findUserByEmail(email)
     if (existingUser) {
       return NextResponse.json({ message: 'User already exists' }, { status: 400 })
     }
     
+    // Hash da senha
     const hashedPassword = bcrypt.hashSync(password, 10)
     
-    const newUser = await createUserMock({
+    // Criar novo usuário
+    const newUser = createUser({
       email,
       password: hashedPassword,
       name,
       role: 'user'
     })
     
-    if (!newUser) {
-      return NextResponse.json({ message: 'Failed to create user' }, { status: 500 })
-    }
+    return NextResponse.json({ 
+      message: 'User created successfully', 
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+        role: newUser.role
+      }
+    }, { status: 201 })
     
-    return NextResponse.json({ message: 'User created successfully', user: newUser }, { status: 201 })
   } catch (error) {
-    return NextResponse.json({ message: 'Internal server error', error: error }, { status: 500 })
+    console.error('Register error:', error)
+    return NextResponse.json({ 
+      message: 'Internal server error', 
+      error: process.env.NODE_ENV === 'development' ? error : undefined 
+    }, { status: 500 })
   }
 }

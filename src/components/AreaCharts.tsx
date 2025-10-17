@@ -17,6 +17,7 @@ import {
   FilterTag,
   ChartCard
 } from "@/styles/components"
+import { formatAmount } from '@/utils'
 
 type FilterPeriod = 'day' | 'week' | 'month' | 'year'
 type FilterType = 'all' | 'deposit' | 'withdraw'
@@ -41,52 +42,63 @@ const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
 
 const AreaCharts = () => {
   const { state } = useTransactions()
-  const [lineFilter, setLineFilter] = useState<FilterPeriod>(() => 
-    loadFromStorage('dashboard_lineFilter', 'month')
-  )
-  const [typeFilter, setTypeFilter] = useState<FilterType>(() => 
-    loadFromStorage('dashboard_typeFilter', 'all')
-  )
-  const [selectedYear, setSelectedYear] = useState<string>(() => 
-    loadFromStorage('dashboard_selectedYear', 'all')
-  )
+  const [isHydrated, setIsHydrated] = useState(false)
   
-  const [pieDistribution, setPieDistribution] = useState<'type' | 'industry' | 'state'>(() => 
-    loadFromStorage('dashboard_pieDistribution', 'type')
-  )
-  
-  const [barTypeFilter, setBarTypeFilter] = useState<FilterType>(() => 
-    loadFromStorage('dashboard_barTypeFilter', 'all')
-  )
-  const [barTopCount, setBarTopCount] = useState<number>(() => 
-    loadFromStorage('dashboard_barTopCount', 10)
-  )
+  const [lineFilter, setLineFilter] = useState<FilterPeriod>('month')
+  const [typeFilter, setTypeFilter] = useState<FilterType>('all')
+  const [selectedYear, setSelectedYear] = useState<string>('all')
+  const [pieDistribution, setPieDistribution] = useState<'type' | 'industry' | 'state'>('type')
+  const [barTypeFilter, setBarTypeFilter] = useState<FilterType>('all')
+  const [barTopCount, setBarTopCount] = useState<number>(10)
  
   const transactions = state.transactions
 
+  // Carregar valores do localStorage após hidratação
   useEffect(() => {
-    saveToStorage('dashboard_lineFilter', lineFilter)
-  }, [lineFilter])
+    setIsHydrated(true)
+    setLineFilter(loadFromStorage('dashboard_lineFilter', 'month'))
+    setTypeFilter(loadFromStorage('dashboard_typeFilter', 'all'))
+    setSelectedYear(loadFromStorage('dashboard_selectedYear', 'all'))
+    setPieDistribution(loadFromStorage('dashboard_pieDistribution', 'type'))
+    setBarTypeFilter(loadFromStorage('dashboard_barTypeFilter', 'all'))
+    setBarTopCount(loadFromStorage('dashboard_barTopCount', 10))
+  }, [])
 
   useEffect(() => {
-    saveToStorage('dashboard_typeFilter', typeFilter)
-  }, [typeFilter])
+    if (isHydrated) {
+      saveToStorage('dashboard_lineFilter', lineFilter)
+    }
+  }, [lineFilter, isHydrated])
 
   useEffect(() => {
-    saveToStorage('dashboard_selectedYear', selectedYear)
-  }, [selectedYear])
+    if (isHydrated) {
+      saveToStorage('dashboard_typeFilter', typeFilter)
+    }
+  }, [typeFilter, isHydrated])
 
   useEffect(() => {
-    saveToStorage('dashboard_pieDistribution', pieDistribution)
-  }, [pieDistribution])
+    if (isHydrated) {
+      saveToStorage('dashboard_selectedYear', selectedYear)
+    }
+  }, [selectedYear, isHydrated])
 
   useEffect(() => {
-    saveToStorage('dashboard_barTypeFilter', barTypeFilter)
-  }, [barTypeFilter])
+    if (isHydrated) {
+      saveToStorage('dashboard_pieDistribution', pieDistribution)
+    }
+  }, [pieDistribution, isHydrated])
 
   useEffect(() => {
-    saveToStorage('dashboard_barTopCount', barTopCount)
-  }, [barTopCount])
+    if (isHydrated) {
+      saveToStorage('dashboard_barTypeFilter', barTypeFilter)
+    }
+  }, [barTypeFilter, isHydrated])
+
+  useEffect(() => {
+    if (isHydrated) {
+      saveToStorage('dashboard_barTopCount', barTopCount)
+    }
+  }, [barTopCount, isHydrated])
 
   const availableYears = useMemo(() => {
     const years = new Set<number>()
@@ -117,10 +129,13 @@ const AreaCharts = () => {
       distributionCount[key] = (distributionCount[key] || 0) + 1
     })
 
-    return Object.entries(distributionCount).map(([key, value]) => ({
-      x: key,
-      y: value
-    }))
+    return Object.entries(distributionCount).map(([key, value]) => {
+      console.log("Valor pie data: ", value, key)
+      return {
+        x: key,
+        y: value
+      }
+    })
   }, [transactions, pieDistribution])
 
   const barData = useMemo(() => {
@@ -132,18 +147,18 @@ const AreaCharts = () => {
     const accountTotals: Record<string, number> = {}
     
     filteredTransactions.forEach(transaction => {
-      const amount = parseFloat(transaction.amount)
+      const amount = +transaction.amount / 100
       if (!accountTotals[transaction.account]) {
         accountTotals[transaction.account] = 0
       }
-      accountTotals[transaction.account] += Math.abs(amount) 
+      accountTotals[transaction.account] += Math.abs(amount)
     })
 
     const sortedAccounts = Object.entries(accountTotals)
       .map(([account, amount]) => ({
         account,
         amount,
-        formattedAmount: `R$ ${amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+        formattedAmount: formatAmount(amount.toString())
       }))
       .sort((a, b) => b.amount - a.amount)
       .slice(0, barTopCount)
@@ -219,7 +234,7 @@ const AreaCharts = () => {
       if (!grouped[key]) {
         grouped[key] = { total: 0, count: 0 }
       }
-      grouped[key].total += Number(transaction.amount)
+      grouped[key].total += Number(transaction.amount) / 100
       grouped[key].count += 1
     })
 
