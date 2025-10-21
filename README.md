@@ -75,11 +75,9 @@ cp .env.example .env.local
 # As configurações de .env.example ja são funcionais não precisa editar
 ```
 
-### **📋 Lista Completa de Scripts**
+### **📋 Rodando o projeto**
 
 ```bash
-# 🚀 Desenvolvimento
-npm run dev              # Inicia o Next.js
 
 # 🏗️ Build e Produção
 npm run build            # Constrói o projeto para produção
@@ -98,7 +96,7 @@ admin@test.com
 ```
 ### **🌐 URLs do Projeto**
 
-Após executar `npm run dev`, o projeto estará disponível em:
+Após executar `npm start`, o projeto estará disponível em:
 
 - **🖥️ Dashboard Next.js:** [http://localhost:3000](http://localhost:3000)
 
